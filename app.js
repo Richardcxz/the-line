@@ -138,6 +138,7 @@ app.post('/salvar-projeto', function (req, res) {
   pool.getConnection()
     .then(conn => {
       return conn.query("INSERT INTO projetos (nome, descricao, criador, projtag) VALUES (?, ?, ?, ?)", [nomeproj, descproj, usertag, tag]);
+      conn.release();
     })
     .then(result => {
       res.send('Projeto salvo com sucesso!');
@@ -182,6 +183,7 @@ app.post('/mudar-info', function (req, res) {
   pool.getConnection()
     .then(conn => {
       return conn.query(sql, params);
+      conn.release();
     })
     .then(result => {
       if (result.affectedRows > 0) {
@@ -225,7 +227,7 @@ app.get('/carregar-projetos', async function (req, res) {
     const projetos = [];
     const conn = await pool.getConnection();
     const result = await conn.query("SELECT nome FROM projetos WHERE criador = ? UNION SELECT projetos.nome FROM projetos INNER JOIN membros ON projetos.projtag = membros.projtag WHERE membros.usertag = ?", [usertag, usertag]);
-
+    
     result.forEach(row => {
       projetos.push(row.nome);
     });
