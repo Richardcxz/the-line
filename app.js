@@ -38,11 +38,7 @@ const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.create
   connectionLimit: 10
 });
 
-pool.getConnection((err, connection) => {
-  if (err) {
-    console.error('Erro ao conectar ao banco de dados:', err);
-    return;
-  }
+pool.getConnection({
   console.log('Conexão estabelecida com o banco de dados.');
   connection.release();
 });
