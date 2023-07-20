@@ -80,7 +80,6 @@ app.post('/fazer-login', function (req, res) {
   const usu = req.body.usu;
   const sen = req.body.sen;
 
-  // Use pool.getConnection() em vez de pool.getConnection() para garantir a liberação adequada da conexão
   pool.getConnection((err, conn) => {
     if (err) {
       console.error('Erro ao se conectar ao banco de dados:', err);
@@ -89,10 +88,11 @@ app.post('/fazer-login', function (req, res) {
     }
 
     conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sen], (err, result) => {
+      conn.release();
+
       if (err) {
         console.error('Erro ao realizar a consulta ao banco de dados:', err);
         res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
-        conn.release(); // Libere a conexão em caso de erro
         return;
       }
 
@@ -105,7 +105,6 @@ app.post('/fazer-login', function (req, res) {
           if (err) {
             console.error('Erro ao realizar a consulta ao banco de dados:', err);
             res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
-            conn.release(); // Libere a conexão em caso de erro
             return;
           }
 
@@ -115,19 +114,16 @@ app.post('/fazer-login', function (req, res) {
             if (err) {
               console.error('Erro ao realizar a consulta ao banco de dados:', err);
               res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
-              conn.release(); // Libere a conexão em caso de erro
               return;
             }
 
             projetoscriados = parseInt(result[0].projscriados);
             totalprojs = projsmembro + projetoscriados;
             res.redirect('index3.html');
-            conn.release(); // Libere a conexão após o uso
           });
         });
       } else {
         res.status(401).send('Usuário ou senha inválidos');
-        conn.release(); // Libere a conexão em caso de erro
       }
     });
   });
