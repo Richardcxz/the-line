@@ -214,18 +214,6 @@
 </script>
 
 <script>
-	function atualizarusuario(){
-	localStorage.setItem('islogged', 1);
-	localStorage.setItem('usuario', document.getElementById('usu').value);
-	localStorage.setItem('usertag', '');
-	localStorage.setItem('nomeproj', '');
-	localStorage.setItem('descproj', '');
-	localStorage.setItem('projtag', '');
-	localStorage.setItem('iscriador', '');
-	}
-  </script>
-
-<script>
 	
 function disableScroll() {
     document.body.style.overflow = 'hidden';
@@ -238,9 +226,15 @@ function logar() {
 	xhr.onload = function() {
 	  if (xhr.status === 200) {
 		document.getElementById('quadrado').classList.add('sucesso');
-		atualizarUsuario();
 		setTimeout(function() {
 		  document.getElementById('quadrado').classList.remove('sucesso');
+		  localStorage.setItem('islogged', 1);
+	      localStorage.setItem('usuario', document.getElementById('usu').value);
+	      localStorage.setItem('usertag', '');
+	      localStorage.setItem('nomeproj', '');
+	      localStorage.setItem('descproj', '');
+	      localStorage.setItem('projtag', '');
+	      localStorage.setItem('iscriador', '');
 		  location.replace("/index3.html");
 		}, 1000);
 	  } else {
