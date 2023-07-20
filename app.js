@@ -35,7 +35,8 @@ const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.create
   user: 'ukoz6hn5habn25uo',
   password: 'iLjAuwNfnYaQwOWuPP7N',
   port: 3306,
-  database: 'b5a0yocqy8nk6zvkxbeo'
+  database: 'b5a0yocqy8nk6zvkxbeo',
+  connectionLimit: 10
 });
 
 pool.getConnection((err, connection) => {
@@ -78,18 +79,23 @@ app.post('/salvar-conta', function(req, res) {
 app.post('/fazer-login', function (req, res) {
   const usu = req.body.usu;
   const sen = req.body.sen;
+
+  // Use pool.getConnection() em vez de pool.getConnection() para garantir a liberação adequada da conexão
   pool.getConnection((err, conn) => {
     if (err) {
       console.error('Erro ao se conectar ao banco de dados:', err);
       res.status(500).send('Erro ao se conectar ao banco de dados.');
       return;
     }
+
     conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sen], (err, result) => {
       if (err) {
         console.error('Erro ao realizar a consulta ao banco de dados:', err);
         res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
+        conn.release(); // Libere a conexão em caso de erro
         return;
       }
+
       if (result.length > 0) {
         usertag = result[0].nicktag;
         islogged = 1;
@@ -99,25 +105,29 @@ app.post('/fazer-login', function (req, res) {
           if (err) {
             console.error('Erro ao realizar a consulta ao banco de dados:', err);
             res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
+            conn.release(); // Libere a conexão em caso de erro
             return;
           }
+
           projsmembro = parseInt(result[0].projsmembro);
 
           conn.query('SELECT COUNT(*) AS projscriados FROM projetos WHERE criador = ?', [usertag], (err, result) => {
             if (err) {
               console.error('Erro ao realizar a consulta ao banco de dados:', err);
               res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
+              conn.release(); // Libere a conexão em caso de erro
               return;
             }
+
             projetoscriados = parseInt(result[0].projscriados);
             totalprojs = projsmembro + projetoscriados;
             res.redirect('index3.html');
-            conn.release();
+            conn.release(); // Libere a conexão após o uso
           });
         });
       } else {
         res.status(401).send('Usuário ou senha inválidos');
-        conn.release();
+        conn.release(); // Libere a conexão em caso de erro
       }
     });
   });
