@@ -373,13 +373,16 @@ function handleInput(event) {
 	  if (localStorage.getItem('islogged') == 1) {
 		document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
 		localStorage.setItem('usertag', data.username);
+		carregarprojetos();
 	  } else {
 		alert("Erro, você não está logado!");
 		setTimeout(function() {
 		  location.replace("index.html");
 		}, 100);
 	  }
+	});
 
+	  function carregarprojetos(){
 	  fetch('/carregar-projetos?usertag=' + localStorage.getItem('usertag'))
 	  .then(response => {
 		return response.json();
@@ -392,11 +395,14 @@ function handleInput(event) {
 		  option.text = projeto;
 		  select.appendChild(option);
 		});
+		carregarsolicitacoes();
 	  })
 	  .catch(error => {
 		console.error('Erro:', error);
 	  });
+	}
 
+function carregarsolicitacoes(){
 fetch('/carregar-solicitacoes?usertag=' + localStorage.getItem('usertag'))
 .then(response => response.json())
 .then(data => {
@@ -406,10 +412,12 @@ fetch('/carregar-solicitacoes?usertag=' + localStorage.getItem('usertag'))
 	option.text = solicitacao;
 	select.add(option);
   });
+  getarqproj();
 })
 .catch(error => {
   console.error('Erro ao carregar as solicitações:', error);
 });
+}
 
 function mudarinfo() {
 	if (confirm("Confirmar alterações?")) {
@@ -565,19 +573,16 @@ function mudarinfo() {
 		  data.forEach(nome => {
 		  
 
-		  // seleciona o elemento select
           const select = document.querySelector('select[id="Projetos"]');
 
-          // cria uma nova opção
           const option = document.createElement('option');
           option.value = nome.nome;
           option.text = nome.nome;
 
-          // adiciona a nova opção ao select
           select.appendChild(option);
-		  select.addEventListener('change', function() {
+	  select.addEventListener('change', function() {
 
-		  const select = document.getElementById("Projetos");
+	  const select = document.getElementById("Projetos");
           const selectedOption = select.options[select.selectedIndex];
           const selectext = selectedOption.textContent;
 
@@ -604,19 +609,15 @@ function mudarinfo() {
 				}).then(data2 => {
 					data2.forEach(tarefa => {
 				
-						// seleciona o elemento select
 						const select = document.querySelector('select[id="Tarefas"]');
 				
-						// verifica se a opção já existe
 						if (!select.querySelector(`[id="${tarefa.tarefa}"]`)) {
 				
-							// cria uma nova opção
 							const option = document.createElement('option');
 							option.value = tarefa.tarefa;
 							option.text = tarefa.tarefa;
 							option.id = tarefa.tarefa; // adiciona um id único à opção
 				
-							// adiciona a nova opção ao select
 							select.appendChild(option);
 							select.addEventListener('change', function() {
 
@@ -648,12 +649,6 @@ function mudarinfo() {
 				
 		  });
 		  });});
-
-
-
-
-	});
-
 
 	function sairacc(){
 			localStorage.setItem('islogged', 0);
