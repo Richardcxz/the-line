@@ -15,7 +15,8 @@
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
     
 </head>
 <body id="pagdark" class="d-flex h-100 text-center; text-white" style="background-color: #0D0020;">
@@ -216,110 +217,13 @@
 
 
 <script>
-
-	function aceitar() {
-		const selectElement = document.getElementById('solic');
-		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
-		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
-
-		fetch('/aceitar-convite', {
-		  method: 'POST',
-		  headers: {
-			'Content-Type': 'application/json'
-		  },
-		  body: JSON.stringify({ nomeproj: projectName })
-		})
-		.then(response => {
-		  if (response.ok) {
-			alert('Convite aceito com sucesso!');
-			location.replace('index3.html');
-		  } else {
-			alert('Erro ao aceitar o convite.');
-			location.replace('index3.html');
-		  }
-		})
-		.catch(error => {
-		  console.error('Erro na requisição:', error);
-		  alert('Erro ao aceitar o convite.');
-		  location.replace('index3.html');
-		});
-	  }	  
-
-	  function recusar() {
-		const selectElement = document.getElementById('solic');
-		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
-		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
-	  fetch('/recusar-convite', {
-		method: 'POST',
-		headers: {
-		  'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({ nomeproj: projectName })
-	  })
-	  .then(response => {
-		if (response.ok) {
-		  alert('Convite recusado com sucesso!');
-		  location.replace('index3.html');
-		} else {
-		  alert('Erro ao recusar o convite.');
-		  location.replace('index3.html');
-		}
-	  })
-	  .catch(error => {
-		console.error('Erro na requisição:', error);
-		alert('Erro ao recusar o convite.');
-		location.replace('index3.html');
-	  });  
-	}
 	
-	function projselecao() {
-		const select = document.getElementById('projetos');
-		const selectedOption = select.options[select.selectedIndex].text;
-	  
-		const xhr = new XMLHttpRequest();
-		xhr.open('POST', '/selecao-proj');
-		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		xhr.onload = function() {
-		  if (xhr.status === 200) {
-			location.replace('index4.html');
-		  }
-		};
-		const dados = 'prj=' + encodeURIComponent(selectedOption);
-		xhr.send(dados);
+    function salvarDadosNaLocalStorage(nomeproj, descproj, projtag, iscriador) {
+		localStorage.setItem('nomeproj', nomeproj);
+		localStorage.setItem('descproj', descproj);
+		localStorage.setItem('projtag', projtag);
+		localStorage.setItem('iscriador', iscriador);
 	  }
-	  
-	  fetch('/carregar-projetos', {
-		method: 'GET',
-	  })
-		.then(response => {
-		  return response.json();
-		})
-		.then(data => {
-		  const select = document.getElementById('projetos');
-		  data.forEach(projeto => {
-			const option = document.createElement('option');
-			option.value = projeto;
-			option.text = projeto;
-			select.appendChild(option);
-		  });
-		})
-		.catch(error => {
-		  console.error('Erro:', error);
-		});
-
-fetch('/carregar-solicitacoes')
-  .then(response => response.json())
-  .then(data => {
-    var select = document.getElementById('solic');
-    data.forEach(solicitacao => {
-      var option = document.createElement('option');
-      option.text = solicitacao;
-      select.add(option);
-    });
-  })
-  .catch(error => {
-    console.error('Erro ao carregar as solicitações:', error);
-  });
 	
 	  
 	function criarprojeto() {
@@ -419,110 +323,6 @@ fetch('/carregar-solicitacoes')
 		document.getElementById("projetosarq").hidden=true;
 		document.getElementById("configu").hidden=true;
 	}
-
-	let codigo = "";
-	var code = document.getElementById("code");
-	var CodeMirror = CodeMirror.fromTextArea(code, {
-	  lineNumbers: true,
-	  viewportMargin: 2,
-	  matchBrackets: true,
-	  readOnly: true,
-	  mode: "text/x-csrc",
-	  theme: "material-darker"
-	});
-
-	fetch('/get-arqproj', {
-		method: 'POST',
-	  })
-		.then(response => {
-		  return response.json();
-		})
-		.then(data => {
-		  data.forEach(nome => {
-		  
-
-		  // seleciona o elemento select
-          const select = document.querySelector('select[id="Projetos"]');
-
-          // cria uma nova opção
-          const option = document.createElement('option');
-          option.value = nome.nome;
-          option.text = nome.nome;
-
-          // adiciona a nova opção ao select
-          select.appendChild(option);
-		  select.addEventListener('change', function() {
-
-		  const select = document.getElementById("Projetos");
-          const selectedOption = select.options[select.selectedIndex];
-          const selectext = selectedOption.textContent;
-
-			fetch('/get-infoarqproj', {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({ selectext })
-				}).then(response => {
-				  return response.json();
-				}).then(data => {
-				console.log(data)
-				document.getElementById('Nomeproj1').innerHTML = data[0].nome
-				document.getElementById('Descproj1').innerHTML = data[0].desc
-				document.getElementById('log').innerHTML = data[0].log;
-				document.getElementById("Proj2").removeAttribute('hidden')
-				document.getElementById("Proj4").removeAttribute('hidden')
-				document.getElementById('Projetos').setAttribute('disabled', 'true')			
-				})
-				fetch('/get-arqtarefas', {
-					method: 'POST'
-				}).then(response => {
-					return response.json();
-				}).then(data2 => {
-					data2.forEach(tarefa => {
-				
-						// seleciona o elemento select
-						const select = document.querySelector('select[id="Tarefas"]');
-				
-						// verifica se a opção já existe
-						if (!select.querySelector(`[id="${tarefa.tarefa}"]`)) {
-				
-							// cria uma nova opção
-							const option = document.createElement('option');
-							option.value = tarefa.tarefa;
-							option.text = tarefa.tarefa;
-							option.id = tarefa.tarefa; // adiciona um id único à opção
-				
-							// adiciona a nova opção ao select
-							select.appendChild(option);
-							select.addEventListener('change', function() {
-
-								const select = document.getElementById("Tarefas");
-								const selectedOption = select.options[select.selectedIndex];
-								const selectext = selectedOption.textContent;
-					  
-								  fetch('/get-infoarqtar', {
-									  method: 'POST',
-									  headers: {'Content-Type': 'application/json'},
-									  body: JSON.stringify({ selectext })
-									  }).then(response => {
-										return response.json();
-									  }).then(data => {
-										console.log(data);
-									  document.getElementById('NomeTar').innerHTML = data[0].tarefa
-									  document.getElementById('DescTar').innerHTML = data[0].desctarefa
-									  codigo = data[0].code
-		                              CodeMirror.setValue(codigo)
-									  document.getElementById("Proj3").style.visibility = "visible";
-									  document.getElementById('Tarefas').setAttribute('disabled', 'true')		
-									  })
-								});
-
-
-						}
-					});
-				})
-				
-		  });
-		  });});
 </script>
 
 <script>
@@ -557,149 +357,313 @@ function handleInput(event) {
 </script>
 
 <script>
+	const usuario = localStorage.getItem('usuario');
+
 	fetch('/verificar-login', {
+	  method: 'POST',
+	  headers: {
+		'Content-Type': 'application/json'
+	  },
+	  body: JSON.stringify({ usuario })
+	})
+	.then(response => {
+	  return response.json();
+	})
+	.then(data => {
+	  if (localStorage.getItem('islogged') == 1) {
+		document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
+		localStorage.setItem('usertag', data.username);
+	  } else {
+		alert("Erro, você não está logado!");
+		setTimeout(function() {
+		  location.replace("index.html");
+		}, 100);
+	  }
+
+	  fetch('/carregar-projetos?usertag=' + localStorage.getItem('usertag'))
+	  .then(response => {
+		return response.json();
+	  })
+	  .then(data => {
+		const select = document.getElementById('projetos');
+		data.forEach(projeto => {
+		  const option = document.createElement('option');
+		  option.value = projeto;
+		  option.text = projeto;
+		  select.appendChild(option);
+		});
+	  })
+	  .catch(error => {
+		console.error('Erro:', error);
+	  });
+
+fetch('/carregar-solicitacoes?usertag=' + localStorage.getItem('usertag'))
+.then(response => response.json())
+.then(data => {
+  var select = document.getElementById('solic');
+  data.forEach(solicitacao => {
+	var option = document.createElement('option');
+	option.text = solicitacao;
+	select.add(option);
+  });
+})
+.catch(error => {
+  console.error('Erro ao carregar as solicitações:', error);
+});
+
+function mudarinfo() {
+	if (confirm("Confirmar alterações?")) {
+	  const xhr = new XMLHttpRequest();
+	  xhr.open('POST', '/mudar-info');
+	  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	  xhr.onload = function () {
+		if (xhr.status === 200) {
+		  alert(xhr.responseText);
+		} else {
+		  alert(xhr.responseText);
+		}
+	  };
+  
+	  const usertag = localStorage.getItem('usertag');
+  
+	  const usuchg = document.getElementById('usuchg').value;
+	  const senchg = document.getElementById('senchg').value;
+	  const emailchg = document.getElementById('emailchg').value;
+  
+	  const dados = 'usertag=' + encodeURIComponent(usertag) +
+		'&usuchg=' + encodeURIComponent(usuchg) +
+		'&senchg=' + encodeURIComponent(senchg) +
+		'&emailchg=' + encodeURIComponent(emailchg);
+  
+	  xhr.send(dados);
+  
+	  setTimeout(function () {
+		location.replace("index3.html");
+	  }, 300);
+	}
+  }
+
+  function criarproj(){
+	const salvarBotao2 = document.getElementById('salvar2');
+	salvarBotao2.addEventListener('click', function() {
+	  const xhr = new XMLHttpRequest();
+	  xhr.open('POST', '/salvar-projeto?usertag=' + localStorage.getItem('usertag'));
+	  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	  xhr.onload = function() {
+		if (xhr.status === 200) {
+		  alert(xhr.responseText);
+		} else {
+		  alert(xhr.responseText);
+		}
+	  };
+	  const dados = 'nomeproj=' + encodeURIComponent(document.getElementById('nomeproj').value) +
+		  '&descproj=' + encodeURIComponent(document.getElementById('descproj').value);
+		  
+	  xhr.send(dados);
+
+	  setTimeout(function() {
+		location.replace("index3.html");
+	  }, 300);
+	  
+	});}
+
+	function projselecao() {
+		const select = document.getElementById('projetos');
+		const selectedOption = select.options[select.selectedIndex].text;
+  
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', '/selecao-proj?usertag=' + localStorage.getItem('usertag'));
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function () {
+		  if (xhr.status === 200) {
+			const responseData = JSON.parse(xhr.responseText);
+			const { nomeproj, descproj, projtag, iscriador } = responseData;
+  
+			salvarDadosNaLocalStorage(nomeproj, descproj, projtag, iscriador);
+  
+			location.replace('index4.html');
+		  }
+		};
+  
+		const dados = 'prj=' + encodeURIComponent(selectedOption);
+		xhr.send(dados);
+	  }
+
+	  function aceitar() {
+		const selectElement = document.getElementById('solic');
+		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
+		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
+
+		fetch('/aceitar-convite?usertag=' + localStorage.getItem('usertag'), {
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify({ nomeproj: projectName })
+		})
+		.then(response => {
+		  if (response.ok) {
+			alert('Convite aceito com sucesso!');
+			location.replace('index3.html');
+		  } else {
+			alert('Erro ao aceitar o convite.');
+			location.replace('index3.html');
+		  }
+		})
+		.catch(error => {
+		  console.error('Erro na requisição:', error);
+		  alert('Erro ao aceitar o convite.');
+		  location.replace('index3.html');
+		});
+	  }	  
+
+	  function recusar() {
+		const selectElement = document.getElementById('solic');
+		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
+		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
+	  fetch('/recusar-convite?usertag=' + localStorage.getItem('usertag'), {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ nomeproj: projectName })
+	  })
+	  .then(response => {
+		if (response.ok) {
+		  alert('Convite recusado com sucesso!');
+		  location.replace('index3.html');
+		} else {
+		  alert('Erro ao recusar o convite.');
+		  location.replace('index3.html');
+		}
+	  })
+	  .catch(error => {
+		console.error('Erro na requisição:', error);
+		alert('Erro ao recusar o convite.');
+		location.replace('index3.html');
+	  });  
+	}
+
+	let codigo = "";
+	var code = document.getElementById("code");
+	var CodeMirror = CodeMirror.fromTextArea(code, {
+	  lineNumbers: true,
+	  viewportMargin: 2,
+	  matchBrackets: true,
+	  readOnly: true,
+	  mode: "text/x-csrc",
+	  theme: "material-darker"
+	});
+
+	fetch('/get-arqproj?usertag=' + localStorage.getItem('usertag'), {
 		method: 'POST',
 	  })
 		.then(response => {
 		  return response.json();
 		})
 		.then(data => {
-		if(data.islogged == "true"){
-		  document.getElementById('salute').innerHTML = "Olá, " + data.username;
-		}
-		else{
-		alert("Erro, você não está logado!")
-		setTimeout(function() {
-		location.replace("index.html");
-		}, 100);
-		}
-
-		  });
-</script>
-
-<script>
-
-	function mudarinfo(){
-		if (confirm("Confirmar alterações?")) {
-		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/mudar-info');
-		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		  xhr.onload = function() {
-			if (xhr.status === 200) {
-			  alert(xhr.responseText);
-			} else {
-			  alert(xhr.responseText);
-			}
-		  };
-
-		  const dados = 'usuchg=' + encodeURIComponent(document.getElementById('usuchg').value) +
-              '&senchg=' + encodeURIComponent(document.getElementById('senchg').value) + 
-			  '&emailchg=' + encodeURIComponent(document.getElementById('emailchg').value)
-			  
-		  xhr.send(dados);
-
-		  setTimeout(function() {
-			location.replace("index3.html");
-		  }, 300);
-		 }
-		};
-
-</script>
-
-<script>
-
-	function criarproj(){
-		const salvarBotao2 = document.getElementById('salvar2');
-		salvarBotao2.addEventListener('click', function() {
-		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/salvar-projeto');
-		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-		  xhr.onload = function() {
-			if (xhr.status === 200) {
-			  alert(xhr.responseText);
-			} else {
-			  alert(xhr.responseText);
-			}
-		  };
-		  const dados = 'nomeproj=' + encodeURIComponent(document.getElementById('nomeproj').value) +
-              '&descproj=' + encodeURIComponent(document.getElementById('descproj').value);
-			  
-		  xhr.send(dados);
-
-		  setTimeout(function() {
-			location.replace("index3.html");
-		  }, 300);
+		  data.forEach(nome => {
 		  
-		});}
 
-</script>
+		  // seleciona o elemento select
+          const select = document.querySelector('select[id="Projetos"]');
 
-<script>
-function sairacc(){
-const xhr = new XMLHttpRequest();
-xhr.open('POST', '/deslogar');
-xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-xhr.onload = function() {
-  if (xhr.status === 200) {
-    setTimeout(function() {
-		location.replace("index.html");
-		}, 200);
-  } else {
-	alert("Erro ao sair.");
-  }
-};
-var off = 0;
-xhr.send(off);
-};
-</script>
+          // cria uma nova opção
+          const option = document.createElement('option');
+          option.value = nome.nome;
+          option.text = nome.nome;
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
-<script>
-	  
-	  function configuracoes() {
-		console.log("Botão Configurações clicado!");
-	  }
-	  
-  $(document).ready(function()  {
+          // adiciona a nova opção ao select
+          select.appendChild(option);
+		  select.addEventListener('change', function() {
+
+		  const select = document.getElementById("Projetos");
+          const selectedOption = select.options[select.selectedIndex];
+          const selectext = selectedOption.textContent;
+
+			fetch('/get-infoarqproj', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({ selectext })
+				}).then(response => {
+				  return response.json();
+				}).then(data => {
+				console.log(data)
+				localStorage.setItem('projtag', data[0].tag);
+				document.getElementById('Nomeproj1').innerHTML = data[0].nome
+				document.getElementById('Descproj1').innerHTML = data[0].desc
+				document.getElementById('log').innerHTML = data[0].log;
+				document.getElementById("Proj2").removeAttribute('hidden')
+				document.getElementById("Proj4").removeAttribute('hidden')
+				document.getElementById('Projetos').setAttribute('disabled', 'true')			
+				})
+				fetch('/get-arqtarefas?projtag=' + localStorage.getItem('projtag'), {
+					method: 'POST'
+				}).then(response => {
+					return response.json();
+				}).then(data2 => {
+					data2.forEach(tarefa => {
+				
+						// seleciona o elemento select
+						const select = document.querySelector('select[id="Tarefas"]');
+				
+						// verifica se a opção já existe
+						if (!select.querySelector(`[id="${tarefa.tarefa}"]`)) {
+				
+							// cria uma nova opção
+							const option = document.createElement('option');
+							option.value = tarefa.tarefa;
+							option.text = tarefa.tarefa;
+							option.id = tarefa.tarefa; // adiciona um id único à opção
+				
+							// adiciona a nova opção ao select
+							select.appendChild(option);
+							select.addEventListener('change', function() {
+
+								const select = document.getElementById("Tarefas");
+								const selectedOption = select.options[select.selectedIndex];
+								const selectext = selectedOption.textContent;
+					  
+								  fetch('/get-infoarqtar?projtag=' + localStorage.getItem('projtag'), {
+									  method: 'POST',
+									  headers: {'Content-Type': 'application/json'},
+									  body: JSON.stringify({ selectext })
+									  }).then(response => {
+										return response.json();
+									  }).then(data => {
+										console.log(data);
+									  document.getElementById('NomeTar').innerHTML = data[0].tarefa
+									  document.getElementById('DescTar').innerHTML = data[0].desctarefa
+									  codigo = data[0].code
+		                              CodeMirror.setValue(codigo)
+									  document.getElementById("Proj3").style.visibility = "visible";
+									  document.getElementById('Tarefas').setAttribute('disabled', 'true')		
+									  })
+								});
 
 
-	$("#goodbtn").parent().on("click","#goodbtn", function () {
+						}
+					});
+				})
+				
+		  });
+		  });});
 
-       $("#pagdark").removeClass('bg-dark').addClass('bg-white');
 
-	   $("#tit").css("color", "black");
-	   $("#descr").css("color", "black");
-	   $("#foo").css("color", "black");
-	   $("#foo").removeClass('text-white-50').addClass('text-black-50');
 
-	   $('#pagdark').attr("id", "pagwhite");
-	   $('#goodbtn').attr("id", "badbtn");
-       });
-
-	$("#goodbtn").parent().on("click","#badbtn",function () {
-
-	$("#pagwhite").removeClass('bg-white').addClass('bg-dark');
-
-	$("#tit").css("color", "white");
-	$("#descr").css("color", "white");
-	$("#foo").removeClass('text-black-50').addClass('text-white-50');
-
-	$('#pagwhite').attr("id", "pagdark");
-	$('#badbtn').attr("id", "goodbtn");
 
 	});
 
-	$('.bot').on('click',function(e){
-    $(this).find('i').addClass('fa-check-circle');
-  $(this).find('a').addClass('chk');
-    $(this).find('i').removeClass('fa-circle');
-    $('.bot').css('pointer-events','none');
-	$('.bot').removeClass('shake'); setTimeout(function(){$('.bot').addClass('shake'); }, 400); return false;
-});
 
-});
-
+	function sairacc(){
+			localStorage.setItem('islogged', 0);
+			localStorage.setItem('projtag', '');
+			localStorage.setItem('usuario', '');
+			localStorage.setItem('usertag', '');
+			localStorage.setItem('nomeproj', '');
+			localStorage.setItem('iscriador', '');
+		    location.replace("index.html");
+	}
+	
 </script>
-
 </html>
