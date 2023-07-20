@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Projeto</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet">
+	<link href="cover.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+	<link rel="icon" type="image/x-icon" href="1x1.png">
+	<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/cover/">
+	<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+
+    
+</head>
+<body id="pagdark" class="d-flex h-100 text-center text-white" style="background-color: #0D0020;">
+   
+	<div class="cover-container d-flex w-100 h-50 p-3 mx-auto flex-column">
+		<header class="mb-auto text-white animate__animated animate__fadeIn animate__delay-1s">
+			<nav>
+			  <ul>
+
+			  <p id="um" style="cursor: pointer; font-size: 18px;" onclick="showone()">INFORMAÇÕES</p>
+			  <p  id="dois" style="cursor: pointer; font-size: 18px;" onclick="showtrfs()">TAREFAS</p>
+			  <div hidden id="trfs" style="opacity: 0.6;">
+			    <p id="tres" style="cursor: pointer; font-size: 18px;" onclick="showtwo()">GERENCIAR TAREFAS</p>
+				<p id="quatro" style="cursor: pointer; font-size: 18px;" onclick="showthree()">CRIAR TAREFA</p>
+				<p id="cinco" style="cursor: pointer; font-size: 18px;" onclick="showseven()">TAREFAS ARQUIVADAS</p>
+			  </div>
+			  <p id="seis" style="cursor: pointer; font-size: 18px;" onclick="showfour()">GERENCIAR EQUIPE</p>
+			  <p id="sete" style="cursor: pointer; font-size: 18px;" onclick="showsix()">LOG DO PROJETO</p>
+			  <p style="cursor: pointer; font-size: 18px;" id="terminar" onclick="terminarprojeto()">TERMINAR PROJETO</p>
+			  <p style="cursor: pointer; font-size: 18px;" id="sair" onclick="sairprojeto()">SAIR  DO PROJETO</p>
+
+			  </ul>
+			</nav>
+		  </header>
+	<main class="px-3 text-center">
+
+		<div id="display" class="animate__animated animate__fadeIn animate__delay-1s" style="text-align:center;">
+
+		<div class="box dashboard-buttons" style="display: flex; justify-content:center; align-items:center;">
+			<div class="box text-white">
+
+		<img src="back.png" style="width: 35px; height: 35px; position: fixed; top: 3%; left: 3%; 
+		margin:8px; filter:invert();" onclick="window.location.href='index3.html'">
+
+		<h1 id="prjnome" class="dashboard-title  animate__animated animate__fadeIn animate__delay-1s" id="tit" style="font-family: 'VCROSDMono'; font-size: 85px;">Nome do Projeto</h1>
+		<p id="prjdesc" class="animate__animated animate__fadeIn animate__delay-1s" style="font-family: 'VCROSDMono'; font-size: 20px; word-wrap: break-word; width: 50%; margin-left: 25%; display: block;"></p>
+		<canvas class="animate__animated animate__fadeIn animate__delay-1s" style="display: block; margin: 0 auto;" id="progresso"></canvas>
+		<br><br><br>
+
+		  </div>
+		  </div>
+		  
+		</div>
+
+		<script>
+		function showtrfs(){
+			document.getElementById("trfs").hidden=false;
+			document.getElementById("display").hidden=true;
+		}
+		function showone(){
+			document.getElementById("trfs").hidden=true;
+			document.getElementById("um").style.textDecoration = "underline";
+			document.getElementById("dois").style.textDecoration = "none";
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("quatro").style.textDecoration = "none";
+			document.getElementById("cinco").style.textDecoration = "none";
+			document.getElementById("seis").style.textDecoration = "none";
+			document.getElementById("sete").style.textDecoration = "none";
+			document.getElementById("divOne").hidden=false;
+			document.getElementById("display").hidden=true;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divThree").hidden=true;
+			document.getElementById("divFour").hidden=true;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=true;
+			document.getElementById("divSeven").hidden=true;
+		}
+		function showfour(){
+			document.getElementById("trfs").hidden=true;
+			document.getElementById("um").style.textDecoration = "none";
+			document.getElementById("dois").style.textDecoration = "none";
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("quatro").style.textDecoration = "none";
+			document.getElementById("cinco").style.textDecoration = "none";
+			document.getElementById("seis").style.textDecoration = "underline";
+			document.getElementById("sete").style.textDecoration = "none";
+			document.getElementById("divOne").hidden=true;
+			document.getElementById("display").hidden=true;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divThree").hidden=true;
+			document.getElementById("divFour").hidden=false;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=true;
+			document.getElementById("divSeven").hidden=true;
+		}
+		function showseven(){
+			document.getElementById("um").style.textDecoration = "none";
+			document.getElementById("dois").style.textDecoration = "underline";
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("quatro").style.textDecoration = "none";
+			document.getElementById("cinco").style.textDecoration = "underline";
+			document.getElementById("seis").style.textDecoration = "none";
+			document.getElementById("sete").style.textDecoration = "none";
+			document.getElementById("divOne").hidden=true;
+			document.getElementById("display").hidden=true;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divThree").hidden=true;
+			document.getElementById("divFour").hidden=true;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=true;
+			document.getElementById("divSeven").hidden=false;
+		}
+		function showsix(){
+			document.getElementById("trfs").hidden=true;
+			document.getElementById("um").style.textDecoration = "none";
+			document.getElementById("dois").style.textDecoration = "none";
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("quatro").style.textDecoration = "none";
+			document.getElementById("cinco").style.textDecoration = "none";
+			document.getElementById("seis").style.textDecoration = "none";
+			document.getElementById("sete").style.textDecoration = "underline";
+			document.getElementById("divOne").hidden=true;
+			document.getElementById("display").hidden=true;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divThree").hidden=true;
+			document.getElementById("divFour").hidden=true;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=false;
+			document.getElementById("divSeven").hidden=true;
+		}
+		function showtwo(){
+			document.getElementById("um").style.textDecoration = "none";
+			document.getElementById("dois").style.textDecoration = "underline";
+			document.getElementById("tres").style.textDecoration = "underline";
+			document.getElementById("quatro").style.textDecoration = "none";
+			document.getElementById("cinco").style.textDecoration = "none";
+			document.getElementById("seis").style.textDecoration = "none";
+			document.getElementById("sete").style.textDecoration = "none";
+			document.getElementById("divOne").hidden=true;
+			document.getElementById("display").hidden=true;
+			document.getElementById("divTwo").hidden=false;
+			document.getElementById("divThree").hidden=true;
+			document.getElementById("divFour").hidden=true;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=true;
+			document.getElementById("divSeven").hidden=true;
+		}
+		function showthree(){
+			document.getElementById("um").style.textDecoration = "none";
+			document.getElementById("dois").style.textDecoration = "underline";
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("quatro").style.textDecoration = "underline";
+			document.getElementById("cinco").style.textDecoration = "none";
+			document.getElementById("seis").style.textDecoration = "none";
+			document.getElementById("sete").style.textDecoration = "none";
+			document.getElementById("divOne").hidden=true;
+			document.getElementById("display").hidden=true;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divThree").hidden=false;
+			document.getElementById("divFour").hidden=true;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=true;
+			document.getElementById("divSeven").hidden=true;
+		}
+		function showfive(){
+			document.getElementById("trfs").hidden=true;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divFive").hidden=false;
+		}
+		function menu(){
+			document.getElementById("trfs").hidden=true;
+			document.getElementById("um").style.textDecoration = "none";
+			document.getElementById("dois").style.textDecoration = "none";
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("quatro").style.textDecoration = "none";
+			document.getElementById("cinco").style.textDecoration = "none";
+			document.getElementById("seis").style.textDecoration = "none";
+			document.getElementById("sete").style.textDecoration = "none";
+			document.getElementById("divOne").hidden=true;
+			document.getElementById("display").hidden=false;
+			document.getElementById("divTwo").hidden=true;
+			document.getElementById("divThree").hidden=true;
+			document.getElementById("divFour").hidden=true;
+			document.getElementById("divFive").hidden=true;
+			document.getElementById("divSix").hidden=true;
+			document.getElementById("divSeven").hidden=true;
+		}
+		</script>
+
+		<div class="animate__animated animate__fadeIn" hidden id="divOne" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			
+			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			<form>
+			  <p style="font-size: 18px;">INFORMAÇÕES BÁSICAS</p><br>
+			  <p>NOME DO PROJETO</p>
+			  <input class="text-white"  id="newnome" placeholder="Projeto" type="text"><br><br>
+			  <p rows="3">DESCRIÇÃO DO PROJETO</p>
+			  <textarea class="text-white"  id="newdesc" placeholder="Descrição" type="text" style="width: 65%; resize: none;"></textarea><br><br>
+			  <p style="cursor: pointer; font-size: 18px;" id="salvar2" onclick="alterarprojeto()" type="button">[SALVAR]</p>
+			</form>
+		  </div>		  
+		
+		
+		  <div class="animate__animated animate__fadeIn" hidden id="divTwo" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			
+			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			<p style="font-size: 18px; text-decoration: none;">TAREFAS ATUAIS</p>
+			<select style="font-size: 18px;" class="text-white" id="tarefas" name="Tarefas" size="6" multiple="multiple">
+
+			</select>
+			<br><br><br>
+
+			<div style="display: inline-flex; width: max-content; top: 50%; margin-left: -23.2%;">
+			<p style="cursor: pointer; margin-right: 20px; font-size: 18px;" onclick="escolhertarefa()">[ESCOLHER TAREFA]</p>
+			<p style="cursor: pointer; margin-right: 20px; font-size: 18px;" onclick="finalizartarefa()">[FINALIZAR TAREFA]</p>
+			<p style="cursor: pointer; font-size: 18px;" onclick="excluirtarefa()">[EXCLUIR TAREFA]</p>
+			</div>
+		  </div>
+
+
+		  <div class="animate__animated animate__fadeIn" hidden id="divThree" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			<form>
+			  <p style="font-size: 18px;">NOVA TAREFA</p><br>
+			  <p>TÍTULO DA TAREFA</p>
+			  <input class="text-white"  id="tarnome" placeholder="Tarefa" type="text"><br><br>
+			  <p rows="3">DESCRIÇÃO DA TAREFA</p>
+			  <textarea class="text-white"  id="tardesc" placeholder="Descrição" type="text" style="width: 65%; resize: none;"></textarea><br><br>
+			  <p style="cursor: pointer; font-size: 18px;" id="salvar2" onclick="cadtarefa()" type="button">[CRIAR]</p>
+			</form>
+		  </div>
+
+
+		  <div class="animate__animated animate__fadeIn" hidden id="divFour" style="width: 35%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			<p style="font-size: 18px;">MEMBROS DA EQUIPE</p>
+				<br>
+				<select style="width: max-content;" class="text-white" disabled id="membros" name="Tarefas" size="6" multiple="multiple">
+
+				</select>
+				<br><br>
+				<p style="cursor: pointer; font-size: 18px;" onclick="addmembro()">[ADICIONAR MEMBRO]</p><br>
+				<div id="add" hidden>
+					<div class="animate__animated animate__fadeIn">
+						<input style="font-family: 'VCROSDMono'; width: 100%;" class="text-white" id="mbr1" placeholder="Membro#0000" style="width:max-content;" type="text">
+						<br><br>
+						<p class="text-white" style="cursor: pointer; font-size: 18px;" onclick="addmembro2()">[ADICIONAR]</p>
+					</div>
+				</div>
+				
+				<p style="cursor: pointer; font-size: 18px;" onclick="remuvo()">[REMOVER MEMBRO]</p><br>
+				<div id="rmv" hidden>
+					<div class="animate__animated animate__fadeIn" >
+						<input style="font-family: 'VCROSDMono'; width: 100%;" class="text-white" id="mbr2" placeholder="Membro#0000" style="width:max-content;" type="text">
+						<br><br>
+						<p class="text-white" style="cursor: pointer; font-size: 18px;" onclick="remuvo2()">[REMOVER]</p>
+					</div>
+				</div>
+
+						</form>
+		</div>
+
+		<div class="animate__animated animate__fadeIn" hidden id="divFive" style="width: 25%; display: inline-block; position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%);">
+			<p style="cursor: pointer; margin-top: 55%; margin-right: 0px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			
+				<p style="font-size: 45px; text-decoration: none;" id="nometrf">Nome da Tarefa</p>
+				<p style="font-size: 20px; text-decoration: none;" id="desctrf">Descrição da tarefa</p>
+				<br>
+				<textarea  style="cursor: pointer; resize: none;" id="code"></textarea>
+				<br>
+				
+				
+
+				<div style="position: fixed; top: 35%; left: -90%; text-align: center;">
+				<p style="font-size: 18px; text-decoration: none;" id="nomeanx">ANEXOS</p>
+				<select class="text-white" id="Anexos" name="Tarefas" size="6" multiple="multiple">
+
+				</select>
+				<br><br>
+				<input style="width: 100%;" class="text-white" id="nomeanexo" placeholder="Nome" type="text">
+				<br>
+				<input style="width: 100%;" class="text-white" id="linkanexo" placeholder="Link" type="text">
+				<br><br>
+				<p style="cursor: pointer; font-size: 18px;" id="salvar2" onclick="addanexo()">[ADICIONAR ANEXO]</p>
+				<br>
+			    </div>
+
+				<p style="cursor: pointer; font-size: 18px;" id="salvar2" onclick="salvartarefa()">[SALVAR]</p>
+        </div>
+
+
+		<div class="animate__animated animate__fadeIn" hidden id="divSix" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>	
+			<p style="font-size: 18px;">LOG DO PROJETO</p>
+				<br>
+				<textarea disabled id="log" name="log" multiple="multiple" style="height:400px; width: 100%; resize: none;"></textarea>
+			</div>
+		</div>
+
+
+		<div class="animate__animated animate__fadeIn" hidden id="divSeven" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+			<br><br><br><br><br><br><br>
+			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			<form>
+				<p style="font-size: 18px;">TAREFAS</p>
+		
+				<select class="text-white"  id="TarefasArq" size="12" multiple="multiple">
+
+				</select>
+			</form>
+			<form id="ArqTar" style="width: 30%; visibility: hidden; margin: 0 auto; display: flex; flex-direction: column; align-items: center;">
+
+				<div style="display: flex; justify-content: center;">
+					<div style="display: flex; flex-direction: column; align-items: center;">
+					  <label style="font-family: 'VCROSDMono'; margin-bottom: 10px;" id="NomeTar">NOME DA TAREFA</label>
+					  <label style="font-family: 'VCROSDMono'; margin-bottom: 10px; width: max-content;" id="DescTar">DESCRIÇÃO</label>
+					</div>
+					<div style=" margin-left: 10%;display: flex; flex-direction: column; align-items: center;">
+					  <label style="font-family: 'VCROSDMono'; margin-bottom: 10px;">&nbsp&nbsp&nbsp&nbsp&nbspCÓDIGO&nbsp&nbsp&nbsp&nbsp&nbsp</label>
+					  <textarea class="text-white" id="CodTar" rows="7" style="width: 100%; resize: none;"></textarea>
+					</div>
+				  </div>
+
+			  </form>
+			  
+			  
+		  </div>	
+
+	</div>
+	</main>
+</body>
+
+<script>
+	function addanexo(){
+	const link = document.getElementById('linkanexo').value;
+	const texto = document.getElementById('nomeanexo').value;
+	const xhr = new XMLHttpRequest();
+		xhr.open('POST', '/add-anexo');
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+		  if (xhr.status === 200) {
+			alert('Anexo adicionado com sucesso!');
+			location.replace('index4.html');
+		  } else {
+			alert('Erro ao adicionar anexo.');
+		  }
+		};
+		const dados = 'link=' + encodeURIComponent(link) +
+		'&texto=' + encodeURIComponent(texto)
+
+		xhr.send(dados);
+}
+	
+</script>
+
+<script>
+	function addmembro(){
+		document.getElementById("add").removeAttribute('hidden')
+		if(document.getElementById("rmv").hasAttribute('hidden')){
+		}
+		else{
+		document.getElementById("rmv").setAttribute('hidden', 'true')
+		}
+	}
+
+	function addmembro2() {
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', '/add-membro');
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+		  if (xhr.status === 200) {
+			location.replace('index4.html');
+		  }
+		  else if(xhr.status === 500) { 
+			alert('Esse membro já está no projeto/foi convidado!');
+			location.replace('index4.html');
+		  }
+		};
+		const og = document.getElementById("mbr1").value;
+		const match = og.match(/^([a-zA-Z]+#[0-9]{4})$/);
+	  
+		if (match) {
+		  const numeros = og.replace(/\D/g, "");
+		  const dados = 'mbr1=' + encodeURIComponent(numeros);
+		  xhr.send(dados);
+		} else {
+		  alert('O campo deve conter "Membro#0000"!');
+		}
+	  } 
+	
+	function remuvo(){
+		document.getElementById("rmv").removeAttribute('hidden')
+		if(document.getElementById("add").hasAttribute('hidden')){
+		}
+		else{
+		document.getElementById("add").setAttribute('hidden', 'true')
+		}
+	}
+
+	function remuvo2(){
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', '/rmv-membro');
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+		  if (xhr.status === 200) {
+			alert('Membro removido com sucesso!');
+			location.replace('index4.html');
+		  } else {
+			alert('Erro ao remover membro.');
+		  }
+		};
+		const og = document.getElementById("mbr2").value.slice(-4);
+		const dados = 'mbr2=' + encodeURIComponent(og)
+		
+		xhr.send(dados);
+	}
+
+	fetch('/get-membros', {
+		method: 'POST',
+	  })
+	  .then(response => {
+		return response.json();
+	  })
+	  .then(data => {
+		const select = document.querySelector('select[id="membros"]');
+		data.forEach(nick => {
+		  const option = document.createElement('option');
+		  option.value = nick;
+		  option.text = nick;
+		  select.appendChild(option);
+		});
+	  })
+	  .catch(error => {
+		console.error('Erro:', error);
+	  });
+	
+	  fetch('/get-log', {
+		method: 'POST',
+	  })
+	  .then(response => {
+		return response.json();
+	  })
+	  .then(data => {
+		console.log(data)
+		document.getElementById('log').innerHTML = data[0].log;
+	  })
+	  .catch(error => {
+		console.error('Erro:', error);
+	  });
+	  
+</script>
+
+<script>
+	fetch('/get-tarefas', {
+		method: 'POST',
+	  })
+		.then(response => {
+		  return response.json();
+		})
+		.then(data => {
+		  data.forEach(tarefa => {
+
+		  // seleciona o elemento select
+          const select = document.querySelector('select[name="Tarefas"]');
+
+          // cria uma nova opção
+          const option = document.createElement('option');
+          option.value = tarefa.tarefa;
+          option.text = tarefa.tarefa;
+
+          // adiciona a nova opção ao select
+          select.appendChild(option);
+		  });
+		})
+		.catch(error => {
+		  console.error('Erro:', error);
+		});
+
+		fetch('/get-tarefasarq', {
+			method: 'POST',
+		  })
+			.then(response => {
+			  return response.json();
+			})
+			.then(data => {
+			  data.forEach(tarefa => {
+	
+			  // seleciona o elemento select
+			  const select = document.querySelector('select[Id="TarefasArq"]');
+	
+			  // cria uma nova opção
+			  const option = document.createElement('option');
+			  option.value = tarefa.tarefa;
+			  option.text = tarefa.tarefa;
+	
+			  // adiciona a nova opção ao select
+			  select.appendChild(option);
+			  select.addEventListener('change', function() {
+
+				const select = document.getElementById("TarefasArq");
+				const selectedOption = select.options[select.selectedIndex];
+				const selectext = selectedOption.textContent;
+				console.log(selectext)
+	  
+				  fetch('/get-infoarqtar', {
+					  method: 'POST',
+					  headers: {'Content-Type': 'application/json'},
+					  body: JSON.stringify({ selectext })
+					  }).then(response => {
+						return response.json();
+					  }).then(data => {
+						console.log(data);
+					  document.getElementById('NomeTar').innerHTML = data[0].tarefa
+					  document.getElementById('DescTar').innerHTML = data[0].desctarefa
+					  document.getElementById('CodTar').innerHTML = data[0].code
+					  document.getElementById("ArqTar").style.visibility = "visible";
+					  document.getElementById("TarefasArq").setAttribute('disabled', 'true')		
+					  })
+				});
+			  });
+			})
+			.catch(error => {
+			  console.error('Erro:', error);
+			});
+</script>
+
+<script>
+	fetch('/info-proj', {
+		method: 'POST',
+		// restante do código de envio de dados
+	  }).then(response => {
+		return response.json();
+	  }).then(data => {
+		const nomeProjeto = data.nome;
+		const descricaoProjeto = data.descricao;
+		if(data.iscriador == "true") {
+		document.getElementById('sair').setAttribute('hidden', 'true');
+		}
+		else{
+		document.getElementById('terminar').setAttribute('hidden', 'true');
+		}
+		document.getElementById('prjnome').innerHTML = nomeProjeto
+		document.getElementById('prjdesc').innerHTML = descricaoProjeto
+		// restante do código de manipulação dos dados recebidos
+	  }).catch(error => {
+		console.error('Erro:', error);
+	  });	  
+	</script>
+
+<script>
+
+	let codigo = ""
+
+	function alterarprojeto() {
+		if (confirm("Confirmar alterações?")) {
+			  const xhr = new XMLHttpRequest();
+			  xhr.open('POST', '/alterar-projeto');
+			  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			  xhr.onload = function() {
+				if (xhr.status === 200) {
+				  alert("Alterações feitas com sucesso!");
+				} else {
+				  alert('Erro ao realizar alterações.');
+				}
+			  };
+			  const dados = 'nome=' + encodeURIComponent(document.getElementById('newnome').value) +
+			  '&descricao=' + encodeURIComponent(document.getElementById('newdesc').value)
+				  
+			  xhr.send(dados);
+			  setTimeout(function() {
+				location.replace("index3.html");
+			  }, 300); }
+			 }
+
+function cadtarefa(){
+	const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/cad-tarefa');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert('Tarefa cadastrada com sucesso!');
+			  location.replace('index4.html');
+			} else {
+			  alert('Erro ao cadastrar tarefa.');
+			}
+		  };
+		  tagtarefa = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
+		  const dados = 'tarnome=' + encodeURIComponent(document.getElementById('tarnome').value) +
+              '&tardesc=' + encodeURIComponent(document.getElementById('tardesc').value) +
+			  '&tagtarefa=' + encodeURIComponent(tagtarefa);
+			  
+		  xhr.send(dados);
+}
+
+function finalizartarefa() {
+	if (confirm("Tem certeza que deseja finalizar a tarefa?")) {
+	const select = document.getElementById("tarefas");
+    const selectedOption = select.options[select.selectedIndex];
+    const selectext = selectedOption.textContent;
+
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/finalizar-tarefa');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert("Tarefa finalizada com sucesso!");
+			} else {
+			  alert('Erro ao finalizar tarefa.');
+			}
+		  };
+		  const dados = 'nometrf=' + encodeURIComponent(selectext)
+			  
+		  xhr.send(dados);
+		  setTimeout(function() {
+			location.replace("index4.html");
+		  }, 300); }
+		 }
+
+	var code = document.getElementById("code");
+	var CodeMirror = CodeMirror.fromTextArea(code, {
+	  lineNumbers: true,
+	  matchBrackets: true,
+	  mode: "text/x-csrc",
+	  theme: "material-darker"
+	});
+
+function escolhertarefa() {
+	const select = document.getElementById("tarefas");
+    const selectedOption = select.options[select.selectedIndex];
+    const selectext = selectedOption.textContent;
+
+	fetch('/escolher-tarefa', {
+		method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+		body: JSON.stringify({ selectext })
+	    }).then(response => {
+		  return response.json();
+		}).then(data => {
+		showfive();
+		document.getElementById('nometrf').innerHTML = data[0].tarefa
+		document.getElementById('desctrf').innerHTML = data[0].desctarefa
+		codigo = data[0].code
+		CodeMirror.setValue(codigo)
+		  
+		})
+
+		fetch('/get-anexos', {
+		method: 'POST',
+	  })
+		.then(response => {
+		  return response.json();
+		})
+		.then(data => {
+		  data.forEach(data => {
+
+		  // seleciona o elemento select
+          const select = document.querySelector('select[id="Anexos"]');
+
+          // cria uma nova opção
+          const option = document.createElement('option');
+          option.value = data.link;
+          option.text = data.name;
+
+          // adiciona a nova opção ao select
+          select.appendChild(option);
+          select.addEventListener('change', function() {
+          // obtém o link selecionado
+
+		  const url = 'http://' + this.value;
+
+          // abre o link em uma nova guia
+          window.open(url, '_blank');
+		  select.selectedIndex = -1;
+          });
+
+		  });
+		})
+}
+
+
+function salvartarefa() {
+	if (confirm("Confirmar alterações?")) {
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/salvar-tarefa');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert("Tarefa atualizada com sucesso!");
+			} else {
+			  alert('Erro ao salvar tarefa.');
+			}
+		  };
+		  const dados = 'code=' + encodeURIComponent(CodeMirror.getValue()) +
+		  '&nometrf=' + encodeURIComponent(document.getElementById('nometrf').innerHTML)
+			  
+		  xhr.send(dados);
+		  setTimeout(function() {
+			location.replace("index4.html");
+		  }, 300); }
+		 }
+
+function excluirtarefa() {
+	if (confirm("Tem certeza que deseja excluir?")) {
+	const select = document.getElementById("tarefas");
+    const selectedOption = select.options[select.selectedIndex];
+    const selectext = selectedOption.textContent;
+
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/excluir-tarefa');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert("Tarefa excluída com sucesso!");
+			} else {
+			  alert('Erro ao excluir tarefa.');
+			}
+		  };
+		  const dados = 'nometrf=' + encodeURIComponent(selectext)
+			  
+		  xhr.send(dados);
+		  setTimeout(function() {
+			location.replace("index4.html");
+		  }, 300); }
+		  }
+
+function terminarprojeto() {
+	if (confirm("Tem certeza que deseja finalizar o projeto?")) {
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/finalizar-projeto');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert("Projeto finalizado com sucesso!");
+			} else {
+			  alert('Erro ao finalizar projeto.');
+			}
+		  };
+		  xhr.send();
+		  setTimeout(function() {
+			location.replace("index3.html");
+		  }, 300);
+		  } }
+
+function sairprojeto() {
+	if (confirm("Tem certeza que deseja sair do projeto?")) {
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/sair-projeto');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert("Removido do projeto com sucesso!");
+			} else if (xhr.status === 500) {
+			  alert('Erro ao sair do projeto.');
+			}
+		  };
+		  xhr.send();
+		  setTimeout(function() {
+			location.replace("index3.html");
+		  }, 300);
+		  } }
+</script>
+
+<script>
+		fetch('/verificar-login', {
+		method: 'POST',
+	  })
+		.then(response => {
+		  return response.json();
+		})
+		.then(data => {
+		if(data.islogged == "true"){
+		}
+		else{
+		alert("Erro, você não está logado!")
+		setTimeout(function() {
+		location.replace("index.html");
+		}, 200);
+		}
+
+		  });
+</script>
+
+<script>
+	fetch('/dados-tarefas', {
+		method: 'POST'
+	    }).then(response => {
+		  return response.json();
+		}).then(data => {
+
+	var tarC = data[0].tarefas_conc
+	var tarP = data[0].tarefas_pend
+	var datachart = {
+        labels: ["Completas", "Pendentes"],
+        datasets: [
+          {
+            data: [tarC, tarP],
+            backgroundColor: ["#000000", "#ffffff"],
+            hoverBackgroundColor: ["#1C1F22", "#1C1F22"],
+          },
+        ],
+      }
+
+      var options = {
+        responsive: false,
+        maintainAspectRatio: false,
+      }
+
+      var myDoughnutChart = new Chart(document.getElementById("progresso"), {
+        type: "doughnut",
+        data: datachart,
+        options: options,
+      })
+	})
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+<script>
+  $(document).ready(function()  {
+
+
+	$("#goodbtn").parent().on("click","#goodbtn", function () {
+
+       $("#pagdark").removeClass('bg-dark').addClass('bg-white');
+
+	   $("#tit").css("color", "black");
+	   $("#descr").css("color", "black");
+	   $("#foo").css("color", "black");
+	   $("#foo").removeClass('text-white-50').addClass('text-black-50');
+
+	   $('#pagdark').attr("id", "pagwhite");
+	   $('#goodbtn').attr("id", "badbtn");
+       });
+
+	$("#goodbtn").parent().on("click","#badbtn",function () {
+
+	$("#pagwhite").removeClass('bg-white').addClass('bg-dark');
+
+	$("#tit").css("color", "white");
+	$("#descr").css("color", "white");
+	$("#foo").removeClass('text-black-50').addClass('text-white-50');
+
+	$('#pagwhite').attr("id", "pagdark");
+	$('#badbtn').attr("id", "goodbtn");
+
+	});
+
+	$('.bot').on('click',function(e){
+    $(this).find('i').addClass('fa-check-circle');
+  $(this).find('a').addClass('chk');
+    $(this).find('i').removeClass('fa-circle');
+    $('.bot').css('pointer-events','none');
+	$('.bot').removeClass('shake'); setTimeout(function(){$('.bot').addClass('shake'); }, 400); return false;
+});
+
+});
+
+</script>
+
+</html>

@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>THE LINE</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;900&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swapYungJakesNewHandwriting-Regular.ttf" rel="stylesheet">
+	<link href="cover.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+	<link rel="icon" type="image/x-icon" href="1x1.png">
+	<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/cover/">
+	<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+</head>
+
+<body id="pagdark" class="d-flex h-100 text-center; text-white" style="background-color: #0D0020;">
+   
+
+	<div class="cover-container d-flex w-100 h-50 p-3 mx-auto flex-column">
+<main class="px-3 text-center">
+		
+		<div id="quadrado">
+			
+			<div style="position: fixed; top: 40%; left: -40%; transform: translate(-50%, -50%); display: inline-block; justify-content: center;">
+				<p style="font-size: 28px; cursor: pointer;" onclick="formlogar()" class="animate__animated animate__fadeIn">LOGIN</p>
+				<div class="animate__animated animate__fadeIn" hidden id="login">
+					<form>
+						<label for="usu">USUÁRIO:</label>
+						<input style="width: 120px;" class="text-white" id="usu" placeholder="Seu usuário" type="text"><br>
+						<label for="sen">SENHA:</label>
+						<input style="width: 120px;" class="text-white" id="sen" placeholder="Sua senha" type="password"><br><br>
+						<p style="cursor: pointer; font-size: 18px;" class="text-white" id="salvar3" onclick="logar()">[ENTRAR]</p>
+					</form>
+				</div>
+				<div id="espaco">
+					<br>
+				</div>
+				<p style="font-size: 28px; cursor: pointer;" onclick="formcadastrar()" class="animate__animated animate__fadeIn">CADASTRAR</p>
+				<div class="animate__animated animate__fadeIn" hidden id="cadastro">
+					<form>
+						<label for="usucad">NOME DE USUÁRIO:</label>
+						<input style="width: 120px;" class="text-white" id="usucad" placeholder="Seu usuário" type="text"><br>
+						<label for="sencad">SENHA:</label>
+						<input style="width: 120px;" class="text-white" id="sencad" placeholder="Sua senha" type="password"><br>
+						<label id="emaillabel" for="emailcad">E-MAIL:</label>
+						<input style="width: 220px;" class="text-white" id="emailcad" placeholder="Seu e-mail" type="text"><br><br>
+						<p style="cursor: pointer; font-size: 18px;" class="text-white" id="salvar2" onclick="cadastrar()">[ENVIAR]</p>
+					</form>
+				</div>
+			</div>
+			
+
+			<div id="display">
+			
+				<img src="teste.png" class="animate__animated animate__fadeIn" style="position: fixed; top: 65%; left: 36.6%;
+			    text-align: center; width: 70%; height: auto;"></img>
+
+				<p style="margin-top: 75%; left: 16.7%; bottom: 15%; position: fixed; text-decoration: none;" >Um ambiente</p><br>
+				<p style="margin-top: 75%; left: 36.7%; bottom: 15%; text-align:center; position: fixed; text-decoration: none;" id="texto-anim"></p><br>
+				<p style="margin-top: 75%; left: 56.7%; bottom: 15%; position: fixed; text-decoration: none;">para seu projeto.</p>
+
+				<div class="animate__animated animate__fadeIn" style="display: inline-flex; font-size: 20px; position: fixed; left: 50%; top: 95%; transform: translate(-50%, -50%);">
+				<p onclick="sobreproj()" style="cursor: pointer;">SOBRE</p>
+				<p style="margin-left: 35px; cursor: pointer;">CRÉDITOS</p>
+				</div>
+
+			</div>
+			<style>
+				#sobre {
+				  position: fixed;
+				  top: 50%;
+				  left: 50%;
+				  transform: translate(-50%, -50%);
+				  width: 90%;
+				  max-height: 90%;
+				  overflow:hidden;
+				  background-color: transparent;
+				  padding: 10px;
+				}
+			  </style>
+			  <div hidden id="sobre" class="animate__animated animate__zoomIn animate__fadeIn">
+				<p style="cursor: pointer; margin-top: -20px; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+				<p style="font-size: 20px; text-decoration: none; text-transform:uppercase; margin-top:0%; font-family: 'VCROSDMono';">
+					<h2 style="font-family: 'VCROSDMono'; text-decoration: none;">Gestão de Projetos</h2>
+					<p style="font-family: 'VCROSDMono'; text-decoration: none;">Acompanhe o progresso, crie tarefas e gerencie membros em um só lugar.</p><br>
+					<h2 style="font-family: 'VCROSDMono'; text-decoration: none;">Colaboração em Equipe</h2>
+          <p style="font-family: 'VCROSDMono'; text-decoration: none;">Trabalhe de forma colaborativa com sua equipe, compartilhando arquivos e ideias.</p><br>
+		  <p style="font-family: 'VCROSDMono'; text-decoration: none;">O ambiente colaborativo de desenvolvimento de projetos The Line é simples e eficiente.
+		  Com uma interface minimalista e direta ao ponto, facilita a criação, organização e acompanhamento do seu projeto. Não importando o seu nível de experiência, o ambiente The Line foi
+		  projetado para proporcionar uma utilização intuitiva e produtiva. Simplifique o seu trabalho e potencialize a colaboração com a plataforma de desenvolvimento de projetos.
+			</p></p>
+			</div>
+
+		<footer class="animate__animated animate__fadeIn" class="mt-auto text-center" style="position: fixed; bottom: 4%; left: 47%; text-align: center;">
+		  <p style="text-decoration: none; position: fixed; bottom: -12%; left: 50%; text-align: center; transform: translate(-50%, -50%);">by Richard</p>
+	    </footer>		
+		  
+		</div>
+
+	
+
+	</body>
+</main>
+
+<script>var phrases = ["minimalista", "produtivo","simplificado"];
+	var currentIndex = 0;
+	var typeSpeed = 100;
+	var eraseSpeed = 50;
+	var pauseDuration = 1500;
+	
+	var textAnimation = document.getElementById("texto-anim");
+	
+	function typeWriter() {
+	  var currentPhrase = phrases[currentIndex];
+	  var currentText = currentPhrase.substring(0, textAnimation.innerHTML.length + 1);
+	  textAnimation.innerHTML = currentText;
+	  if(currentPhrase == "produtivo"){
+		textAnimation.style.left="37.8%";
+	  }
+	  if(currentPhrase == "simplificado"){
+		textAnimation.style.left="36.0%";
+	  }
+	  if(currentPhrase == "minimalista"){
+		textAnimation.style.left="36.7%";
+	  }
+	
+	  if (currentText === currentPhrase) {
+		setTimeout(eraseText, pauseDuration);
+	  } else {
+		setTimeout(typeWriter, typeSpeed);
+	  }
+	}
+	
+	function eraseText() {
+	  var currentPhrase = phrases[currentIndex];
+	  var currentText = currentPhrase.substring(0, textAnimation.innerHTML.length - 1);
+	  textAnimation.innerHTML = currentText;
+	
+	  if (currentText === "") {
+		currentIndex = (currentIndex + 1) % phrases.length;
+		setTimeout(typeWriter, typeSpeed);
+	  } else {
+		setTimeout(eraseText, eraseSpeed);
+	  }
+	}
+	typeWriter();
+	</script>
+
+<script>
+  function ajustarPosicaoDiv() {
+    var formulariosDiv = document.getElementById("formularios");
+    var isVertical = window.innerHeight > window.innerWidth;
+
+    if (isVertical) {
+      formulariosDiv.style.top = "20%";
+      formulariosDiv.style.left = "50%";
+      formulariosDiv.style.transform = "translate(-50%, -50%)";
+    }
+  }
+
+  ajustarPosicaoDiv();
+
+  window.addEventListener("orientationchange", ajustarPosicaoDiv);
+</script>
+
+
+
+<script>
+	function sobreproj() {
+		document.getElementById("display").hidden=true;
+		document.getElementById("sobre").hidden=false;
+	}
+	function menu() {
+		document.getElementById("display").hidden=false;
+		document.getElementById("sobre").hidden=true;
+	}
+	
+	function formlogar() {
+		document.getElementById("login").hidden=false;
+		document.getElementById("cadastro").hidden=true;
+		document.getElementById("espaco").hidden=false;
+	}
+	function formcadastrar() {
+		document.getElementById("cadastro").hidden=false;
+		document.getElementById("login").hidden=true;
+		document.getElementById("espaco").hidden=true;
+	}
+	document.addEventListener('keydown', function(event) {
+		if (event.keyCode === 27 && document.getElementById("sobre").hidden){
+			document.getElementById("login").hidden=true;
+			document.getElementById("cadastro").hidden=true;
+			document.getElementById("espaco").hidden=false;
+		}
+	});
+
+		const xhr = new XMLHttpRequest();
+		xhr.open('GET', '/verificar-login');
+		xhr.onload = function() {
+		if (xhr.status === 200 && xhr.responseText === 'true') {
+		alert("Você já está logado!")
+			setTimeout(function() {
+				location.replace("index3.html");
+			}, 200);
+		  } else {
+			
+		  }
+		};
+		xhr.send();
+		
+		
+</script>
+
+<script>
+	
+function disableScroll() {
+    document.body.style.overflow = 'hidden';
+}
+
+function logar() {
+	const xhr = new XMLHttpRequest();
+	xhr.open('POST', '/fazer-login');
+	xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xhr.onload = function() {
+	  if (xhr.status === 200) {
+		document.getElementById('quadrado').classList.add('sucesso');
+		setTimeout(function() {
+		  document.getElementById('quadrado').classList.remove('sucesso');
+		  location.replace("/index3.html");
+		}, 1000);
+	  } else {
+		document.getElementById('quadrado').classList.add('falha');
+		setTimeout(function() {
+		  document.getElementById('quadrado').classList.remove('falha');
+		  window.alert('Erro ao logar, verifique as informações inseridas.');
+		}, 1000);
+	  }
+	};
+	const dados = 'usu=' + encodeURIComponent(document.getElementById('usu').value) +
+	  '&sen=' + encodeURIComponent(document.getElementById('sen').value);
+	xhr.send(dados);
+  }
+  
+  function cadastrar() {
+	var usuario = document.getElementById("usucad").value;
+	var senha = document.getElementById("sencad").value;
+	var email = document.getElementById("emailcad").value;
+	var validRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/;
+	if (usuario == "" || senha == "" || email == "") {
+	  document.getElementById('quadrado').classList.add('falha');
+	  setTimeout(function() {
+		document.getElementById('quadrado').classList.remove('falha');
+		window.alert("Erro! Um ou mais campos estão vazios.");
+	  }, 1000);
+	}
+  
+	if (emailcad.value.match(validRegex)) {
+	  if (usuario != "" && senha != "") {
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', '/salvar-conta');
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+		  if (xhr.status === 200) {
+			document.getElementById('quadrado').classList.add('sucesso');
+			setTimeout(function() {
+			  document.getElementById('quadrado').classList.remove('sucesso');
+			  document.getElementById("login").removeAttribute("hidden")
+			  document.getElementById("cadastro").hidden = true;
+			  document.getElementById("espaco").hidden = false;
+			  document.getElementById("usucad").value = "";
+			  document.getElementById("sencad").value = "";
+			  document.getElementById("emailcad").value = "";
+			}, 2000);
+		  }
+		};
+		const dados = 'usuario=' + encodeURIComponent(document.getElementById('usucad').value) +
+		  '&email=' + encodeURIComponent(document.getElementById('emailcad').value) +
+		  '&senha=' + encodeURIComponent(document.getElementById('sencad').value);
+		xhr.send(dados);
+	  }
+	} else {
+	  document.getElementById('quadrado').classList.add('falha');
+	  document.getElementById("emaillabel").innerHTML = "E-MAIL INVÁLIDO!";
+	  setTimeout(function() {
+		document.getElementById('quadrado').classList.remove('falha');
+	  }, 1000);
+	}
+  }
+  
+	
+</script>
+</html>

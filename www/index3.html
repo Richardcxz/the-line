@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DASHBOARD</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet">
+	<link href="cover.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="style.css">
+	<link rel="icon" type="image/x-icon" href="1x1.png">
+	<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/cover/">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+
+    
+</head>
+<body id="pagdark" class="d-flex h-100 text-center; text-white" style="background-color: #0D0020;">
+   
+	<div class="cover-container d-flex w-100 h-50 p-3 mx-auto flex-column">
+		
+		<header class="mb-auto text-white animate__animated animate__fadeIn animate__delay-1s">
+			<nav>
+			  <ul>
+				<p id="um" style="text-decoration: underline;" onclick="menu()">PROJETOS</p>
+				<p id="tres" style="text-decoration: none; cursor: pointer;" onclick="configs()">CONFIGURAÇÕES</p>
+
+			  </ul>
+			</nav>
+		  </header>
+
+		  <script>
+			document.getElementById("tres").addEventListener("mouseover", function() {
+				document.getElementById("um").style.textDecoration = "none";
+				document.getElementById("tres").style.textDecoration = "underline";
+		    });
+
+			document.getElementById("tres").addEventListener("mouseout", function() {
+				document.getElementById("tres").style.textDecoration = "none";
+				document.getElementById("um").style.textDecoration = "underline";
+			});
+
+			document.getElementById("um").addEventListener("mouseover", function() {
+				document.getElementById("tres").style.textDecoration = "none";
+				document.getElementById("um").style.textDecoration = "underline";
+		    });
+
+			document.getElementById("um").addEventListener("mouseout", function() {
+				if (document.getElementById("configu").hidden === false) {
+					document.getElementById("um").style.textDecoration = "none";
+					document.getElementById("tres").style.textDecoration = "underline";
+				}				
+			});
+
+		  </script>
+		
+		<main class="px-3 text-center">
+		
+			<div id="retangulo">
+				
+				<br><br><br><br><br><br><br><br>
+	            
+				<div id="display" class="animate__animated animate__fadeIn animate__delay-1s">
+
+				<br><br>
+
+				<img src="exit.png" style="width: 35px; height: 35px; position: fixed; top: 3%; left: 3%; 
+		        margin: 18px; filter: invert(); cursor: pointer;" onclick="sairacc()">
+
+				<img src="bell.png" style="filter: invert(); width: 35px; height: 35px; position: fixed; top: 4.6%; left: 9%; 
+		        margin:8px; filter:invert(); cursor: pointer;" onclick="caixa()">
+
+				<div style="position: fixed; top: 11%; left: 9%;">
+					<div id="notif" hidden class="text-white animate__animated animate__zoomIn animate__fadeIn" style="width: 25%; height: 39%; position: fixed;
+		            background-color: #100127; border-radius: 8px; border: 1px solid white;">
+		            <p style="font-size: 18px;">NOTIFICAÇÕES</p>
+		  
+		            <select style="font-size: 16px; width: fit-content;" class="text-white" size="10" id="solic" nome="solic"
+					multiple="multiple">
+								
+					</select><br>
+
+						<div style="display: inline-flex;">
+						<img src="check.png" style="filter: invert(); margin-left: -20%; width: 25px; height: 25px;
+						margin:8px; filter:invert(); cursor: pointer;" onclick="aceitar()">
+						<img src="wrong.png" style="filter: invert(); margin-right: 20%; width: 25px; height: 25px;
+						margin:8px; filter:invert(); cursor: pointer;" onclick="recusar()">
+					</div>
+		        </div>
+				</div>
+
+				<p style="text-decoration: none; font-size: 45px;">DASHBOARD</p>
+				<p style="text-decoration: none;" id="salute"></p>
+				<p style="text-decoration: none; font-size: 18px;">escolha uma opção</p>
+				<br><br>
+				<div style="display: inline-flex;">
+				<p style="cursor: pointer; font-size: 18px; margin-right: 15px;" onclick="criarprojeto()">[CRIAR PROJETO]</p>
+				<p style="cursor: pointer; font-size: 18px; margin-right: 10px;" onclick="meusprojetos()">[MEUS PROJETOS]</p>
+				<p style="cursor: pointer; font-size: 18px; margin-left: 10px;" onclick="arqprojetos()">[PROJETOS ARQUIVADOS]</p>
+				</div>
+
+
+				</div>
+	
+				<div hidden id="criarproj" class="animate__animated animate__fadeIn" style="width: 75%; text-align: center; margin: 0 auto;">
+					<p style="cursor: pointer;" class="sair" onclick="menu()">x</p>
+					<br>
+					<div style="margin-top:1%; font-size: 18px;">
+							<p style="text-decoration: none;">Informações Básicas</p>
+									<form>
+										<label>Nome do Projeto</label>
+										<input class="text-white" id="nomeproj" placeholder="Nome" type="text"><br><br>
+										<label >Descrição do Projeto</label>
+										<textarea rows="1" style="resize: none; font-family: 'VCROSDMono'; text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+										font-size: 18px; border: none; background-color: transparent; outline: none; align-items: center;
+										text-align: center; width: 25%;" class="text-white" id="descproj" placeholder="Descrição" type="text"></textarea>
+										<br><br>
+										<p id="salvar2" onclick="criarproj()" type="button">[SALVAR]</p>
+									</form>
+					</div>
+				</div>
+
+				<div hidden id="meusprojetos" class="animate__animated animate__fadeIn" style="width: 75%; text-align: center; margin: 0 auto;">
+					<p style="cursor: pointer;" class="sair" onclick="menu()">x</p>
+					<br>
+					<div style="margin-top:1%;">
+							<p style="font-size: 18px; text-decoration: none;">Escolha o projeto:</p>
+							<select style="font-size: 16px; width: 10%;" class="text-white" id="projetos" name="Projetos" size="6" multiple="multiple">
+								
+							</select><br><br>
+							<div style="display: inline-flex;">
+							<p style="cursor: pointer; font-size: 18px;" onclick="projselecao()">[ACESSAR]</p>
+							</div>
+					</div>
+				</div>
+
+				<div hidden id="configu" class="animate__animated animate__fadeIn" style="width: 75%; text-align: center; margin: 0 auto;">
+					<p style="cursor: pointer;" class="sair" onclick="menu()">x</p>
+					<br>
+					<div style="margin-top:1%; font-size: 18px;">
+							<p style="text-decoration: none;">Informações da Conta</p>
+									<form>
+										<label>Nome de Usuário</label>
+										<input class="text-white" id="usuchg" placeholder="Seu novo usuário" type="text"><br><br>
+										<label >Senha</label>
+										<input class="text-white" id="senchg" placeholder="Sua nova senha" type="text"><br><br>
+										<label >E-mail</label>
+										<input class="text-white" id="emailchg" placeholder="exemplo@provedor.com" type="text" value=""><br><br>
+										<br><br>
+										<p id="salvar2" onclick="mudarinfo()" type="button">[APLICAR]</p>
+									</form>
+					</div>
+				</div>
+
+
+					<div hidden class="animate__animated animate__fadeIn" id="projetosarq" style="width: 90%; margin-top: -10%; position:fixed;">
+						<h1 style="font-family: 'VCROSDMono'; margin-left: 6.6%;  text-align: center;">Seus Projetos</h1><a class="sair" style="margin-left: 50%;" href="index3.html">&times;</a>
+						<br><br>
+						<div  style="margin-left: 4%;">
+							<div  style="display: flex;">
+								<form id="Proj" style="width: 25%; margin-left: 0%; margin-top: 6%; ">
+									<p>Projetos</p>
+									<br><br>
+									<select class="text-white" id="Projetos" name="Projetos" size="12" multiple="multiple">
+				
+									</select>
+								</form>
+				
+								<form hidden id="Proj2" style="width: 25%; margin-left: 10%;">
+									<p id="Nomeproj1">Nome do Projeto</p>
+									<br><br>
+									<p id="Descproj1">Descricao</p>
+									<br><br>
+									<p>Tarefas</p>
+				
+									<select class="text-white" id="Tarefas" name="Tarefas" size="12" multiple="multiple">
+				
+									</select>
+								</form>
+				
+								<form id="Proj3" style="width: 30%; margin-left: 10%; visibility: hidden;">
+									<p id="NomeTar">Nome da Tarefa</p>
+									<br><br>
+									<p id="DescTar">Descricao</p>
+									<br><br>
+									<p>Código</p>
+				
+									<textarea id="code" style="resize: none;"></textarea>
+								</form>
+								<br>
+								<form hidden id="Proj4" style="width: 35%; margin-left: 10%; margin-right:5%;">
+									<br><br><br><br>
+									<p>Logs</p>
+									
+									<textarea disabled id="log" rows="11" style="width: max-content; resize: none;"></textarea>
+								</form>
+							</div>
+						</div>
+					</div>
+
+
+            <footer class="animate__animated animate__fadeIn" class="mt-auto text-center" style="position: fixed; bottom: 4%; left: 47%; text-align: center;">
+			  <p style="text-decoration: none; position: fixed; bottom: -12%; left: 50%; text-align: center; transform: translate(-50%, -50%);">by Richard</p>
+			</footer>	
+
+		</div>
+	
+		</div>
+	
+		</body>
+	</main>
+
+
+
+<script>
+
+	function aceitar() {
+		const selectElement = document.getElementById('solic');
+		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
+		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
+
+		fetch('/aceitar-convite', {
+		  method: 'POST',
+		  headers: {
+			'Content-Type': 'application/json'
+		  },
+		  body: JSON.stringify({ nomeproj: projectName })
+		})
+		.then(response => {
+		  if (response.ok) {
+			alert('Convite aceito com sucesso!');
+			location.replace('index3.html');
+		  } else {
+			alert('Erro ao aceitar o convite.');
+			location.replace('index3.html');
+		  }
+		})
+		.catch(error => {
+		  console.error('Erro na requisição:', error);
+		  alert('Erro ao aceitar o convite.');
+		  location.replace('index3.html');
+		});
+	  }	  
+
+	  function recusar() {
+		const selectElement = document.getElementById('solic');
+		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
+		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
+	  fetch('/recusar-convite', {
+		method: 'POST',
+		headers: {
+		  'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({ nomeproj: projectName })
+	  })
+	  .then(response => {
+		if (response.ok) {
+		  alert('Convite recusado com sucesso!');
+		  location.replace('index3.html');
+		} else {
+		  alert('Erro ao recusar o convite.');
+		  location.replace('index3.html');
+		}
+	  })
+	  .catch(error => {
+		console.error('Erro na requisição:', error);
+		alert('Erro ao recusar o convite.');
+		location.replace('index3.html');
+	  });  
+	}
+	
+	function projselecao() {
+		const select = document.getElementById('projetos');
+		const selectedOption = select.options[select.selectedIndex].text;
+	  
+		const xhr = new XMLHttpRequest();
+		xhr.open('POST', '/selecao-proj');
+		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		xhr.onload = function() {
+		  if (xhr.status === 200) {
+			location.replace('index4.html');
+		  }
+		};
+		const dados = 'prj=' + encodeURIComponent(selectedOption);
+		xhr.send(dados);
+	  }
+	  
+	  fetch('/carregar-projetos', {
+		method: 'GET',
+	  })
+		.then(response => {
+		  return response.json();
+		})
+		.then(data => {
+		  const select = document.getElementById('projetos');
+		  data.forEach(projeto => {
+			const option = document.createElement('option');
+			option.value = projeto;
+			option.text = projeto;
+			select.appendChild(option);
+		  });
+		})
+		.catch(error => {
+		  console.error('Erro:', error);
+		});
+
+fetch('/carregar-solicitacoes')
+  .then(response => response.json())
+  .then(data => {
+    var select = document.getElementById('solic');
+    data.forEach(solicitacao => {
+      var option = document.createElement('option');
+      option.text = solicitacao;
+      select.add(option);
+    });
+  })
+  .catch(error => {
+    console.error('Erro ao carregar as solicitações:', error);
+  });
+	
+	  
+	function criarprojeto() {
+		document.getElementById("criarproj").hidden=false;
+		document.getElementById("meusprojetos").hidden=true;
+		document.getElementById("projetosarq").hidden=true;
+		document.getElementById("configu").hidden=true;
+		document.getElementById("display").hidden=true;
+	}
+	function meusprojetos() {
+		document.getElementById("criarproj").hidden=true;
+		document.getElementById("meusprojetos").hidden=false;
+		document.getElementById("projetosarq").hidden=true;
+		document.getElementById("configu").hidden=true;
+		document.getElementById("display").hidden=true;
+	}
+	function arqprojetos() {
+		document.getElementById("criarproj").hidden=true;
+		document.getElementById("meusprojetos").hidden=true;
+		document.getElementById("projetosarq").hidden=false;
+		document.getElementById("configu").hidden=true;
+		document.getElementById("display").hidden=true;
+	}
+	let counter;
+	function caixa() {
+		if(counter==1){
+		document.getElementById("notif").hidden=true;
+		counter = 0;
+		}
+		else{
+		document.getElementById("notif").hidden=false;
+		counter = 1;
+	    }
+	}
+	function configs() {
+
+		document.getElementById("tres").addEventListener("mouseout", function() {
+
+		document.getElementById("tres").removeEventListener("mouseout", mouseOutHandler);
+		
+		document.getElementById("tres").style.textDecoration = "underline";
+		document.getElementById("um").style.textDecoration = "none";
+		document.getElementById("um").style.cursor = "pointer";
+		
+		setTimeout(function() {
+				document.getElementById("tres").addEventListener("mouseout", mouseOutHandler);
+		}, 1000);
+		});
+		
+
+		document.getElementById("criarproj").hidden=true;
+		document.getElementById("meusprojetos").hidden=true;
+		document.getElementById("projetosarq").hidden=true;
+		document.getElementById("configu").hidden=false;
+		document.getElementById("display").hidden=true;
+		document.getElementById("um").style.textDecoration = "none";
+		document.getElementById("tres").style.textDecoration = "underline";
+	}
+	function mouseOutHandler() {
+			document.getElementById("tres").style.textDecoration = "underline";
+			document.getElementById("um").style.textDecoration = "none";
+		}
+	function menu() {
+		document.getElementById("tres").removeEventListener("mouseout", mouseOutHandler);
+
+		document.getElementById("tres").addEventListener("mouseout", function() {
+			document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("um").style.textDecoration = "underline";
+		});
+
+		document.getElementById("criarproj").hidden=true;
+		document.getElementById("meusprojetos").hidden=true;
+		document.getElementById("projetosarq").hidden=true;
+		document.getElementById("configu").hidden=true;
+		document.getElementById("display").hidden=false;
+		document.getElementById("um").style.textDecoration = "underline";
+		document.getElementById("tres").style.textDecoration = "none";
+	}
+	function menuarq(){
+		const projetosSelect = document.getElementById("Projetos");
+		const tarefasSelect = document.getElementById("Tarefas");
+		projetosSelect.selectedIndex = -1;
+		tarefasSelect.selectedIndex = -1;
+		  
+		const proj2Form = document.getElementById("Proj2");
+		const proj3Form = document.getElementById("Proj3");
+		const proj4Form = document.getElementById("Proj4");
+		proj2Form.setAttribute("hidden", "true");
+		proj3Form.style.visibility = "hidden";
+		proj4Form.setAttribute("hidden", "true");
+		  
+		projetosSelect.removeAttribute("disabled");
+		tarefasSelect.removeAttribute("disabled");
+		
+	    document.getElementById("criarproj").hidden=true;
+		document.getElementById("meusprojetos").hidden=true;
+		document.getElementById("projetosarq").hidden=true;
+		document.getElementById("configu").hidden=true;
+	}
+
+	let codigo = "";
+	var code = document.getElementById("code");
+	var CodeMirror = CodeMirror.fromTextArea(code, {
+	  lineNumbers: true,
+	  viewportMargin: 2,
+	  matchBrackets: true,
+	  readOnly: true,
+	  mode: "text/x-csrc",
+	  theme: "material-darker"
+	});
+
+	fetch('/get-arqproj', {
+		method: 'POST',
+	  })
+		.then(response => {
+		  return response.json();
+		})
+		.then(data => {
+		  data.forEach(nome => {
+		  
+
+		  // seleciona o elemento select
+          const select = document.querySelector('select[id="Projetos"]');
+
+          // cria uma nova opção
+          const option = document.createElement('option');
+          option.value = nome.nome;
+          option.text = nome.nome;
+
+          // adiciona a nova opção ao select
+          select.appendChild(option);
+		  select.addEventListener('change', function() {
+
+		  const select = document.getElementById("Projetos");
+          const selectedOption = select.options[select.selectedIndex];
+          const selectext = selectedOption.textContent;
+
+			fetch('/get-infoarqproj', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/json'},
+				body: JSON.stringify({ selectext })
+				}).then(response => {
+				  return response.json();
+				}).then(data => {
+				console.log(data)
+				document.getElementById('Nomeproj1').innerHTML = data[0].nome
+				document.getElementById('Descproj1').innerHTML = data[0].desc
+				document.getElementById('log').innerHTML = data[0].log;
+				document.getElementById("Proj2").removeAttribute('hidden')
+				document.getElementById("Proj4").removeAttribute('hidden')
+				document.getElementById('Projetos').setAttribute('disabled', 'true')			
+				})
+				fetch('/get-arqtarefas', {
+					method: 'POST'
+				}).then(response => {
+					return response.json();
+				}).then(data2 => {
+					data2.forEach(tarefa => {
+				
+						// seleciona o elemento select
+						const select = document.querySelector('select[id="Tarefas"]');
+				
+						// verifica se a opção já existe
+						if (!select.querySelector(`[id="${tarefa.tarefa}"]`)) {
+				
+							// cria uma nova opção
+							const option = document.createElement('option');
+							option.value = tarefa.tarefa;
+							option.text = tarefa.tarefa;
+							option.id = tarefa.tarefa; // adiciona um id único à opção
+				
+							// adiciona a nova opção ao select
+							select.appendChild(option);
+							select.addEventListener('change', function() {
+
+								const select = document.getElementById("Tarefas");
+								const selectedOption = select.options[select.selectedIndex];
+								const selectext = selectedOption.textContent;
+					  
+								  fetch('/get-infoarqtar', {
+									  method: 'POST',
+									  headers: {'Content-Type': 'application/json'},
+									  body: JSON.stringify({ selectext })
+									  }).then(response => {
+										return response.json();
+									  }).then(data => {
+										console.log(data);
+									  document.getElementById('NomeTar').innerHTML = data[0].tarefa
+									  document.getElementById('DescTar').innerHTML = data[0].desctarefa
+									  codigo = data[0].code
+		                              CodeMirror.setValue(codigo)
+									  document.getElementById("Proj3").style.visibility = "visible";
+									  document.getElementById('Tarefas').setAttribute('disabled', 'true')		
+									  })
+								});
+
+
+						}
+					});
+				})
+				
+		  });
+		  });});
+</script>
+
+<script>
+const usuchgInput = document.getElementById('usuchg');
+const senchgInput = document.getElementById('senchg');
+const emailchgInput = document.getElementById('emailchg');
+
+usuchgInput.addEventListener('input', handleInput);
+senchgInput.addEventListener('input', handleInput);
+emailchgInput.addEventListener('input', handleInput);
+
+function handleInput(event) {
+  const currentInput = event.target;
+
+  if (currentInput.value.length > 0) {
+    if (currentInput === usuchgInput) {
+      senchgInput.disabled = true;
+      emailchgInput.disabled = true;
+    } else if (currentInput === senchgInput) {
+      usuchgInput.disabled = true;
+      emailchgInput.disabled = true;
+    } else if (currentInput === emailchgInput) {
+      usuchgInput.disabled = true;
+      senchgInput.disabled = true;
+    }
+  } else {
+    usuchgInput.disabled = false;
+    senchgInput.disabled = false;
+    emailchgInput.disabled = false;
+  }
+}
+</script>
+
+<script>
+	fetch('/verificar-login', {
+		method: 'POST',
+	  })
+		.then(response => {
+		  return response.json();
+		})
+		.then(data => {
+		if(data.islogged == "true"){
+		  document.getElementById('salute').innerHTML = "Olá, " + data.username;
+		}
+		else{
+		alert("Erro, você não está logado!")
+		setTimeout(function() {
+		location.replace("index.html");
+		}, 100);
+		}
+
+		  });
+</script>
+
+<script>
+
+	function mudarinfo(){
+		if (confirm("Confirmar alterações?")) {
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/mudar-info');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert(xhr.responseText);
+			} else {
+			  alert(xhr.responseText);
+			}
+		  };
+
+		  const dados = 'usuchg=' + encodeURIComponent(document.getElementById('usuchg').value) +
+              '&senchg=' + encodeURIComponent(document.getElementById('senchg').value) + 
+			  '&emailchg=' + encodeURIComponent(document.getElementById('emailchg').value)
+			  
+		  xhr.send(dados);
+
+		  setTimeout(function() {
+			location.replace("index3.html");
+		  }, 300);
+		 }
+		};
+
+</script>
+
+<script>
+
+	function criarproj(){
+		const salvarBotao2 = document.getElementById('salvar2');
+		salvarBotao2.addEventListener('click', function() {
+		  const xhr = new XMLHttpRequest();
+		  xhr.open('POST', '/salvar-projeto');
+		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+		  xhr.onload = function() {
+			if (xhr.status === 200) {
+			  alert(xhr.responseText);
+			} else {
+			  alert(xhr.responseText);
+			}
+		  };
+		  const dados = 'nomeproj=' + encodeURIComponent(document.getElementById('nomeproj').value) +
+              '&descproj=' + encodeURIComponent(document.getElementById('descproj').value);
+			  
+		  xhr.send(dados);
+
+		  setTimeout(function() {
+			location.replace("index3.html");
+		  }, 300);
+		  
+		});}
+
+</script>
+
+<script>
+function sairacc(){
+const xhr = new XMLHttpRequest();
+xhr.open('POST', '/deslogar');
+xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+xhr.onload = function() {
+  if (xhr.status === 200) {
+    setTimeout(function() {
+		location.replace("index.html");
+		}, 200);
+  } else {
+	alert("Erro ao sair.");
+  }
+};
+var off = 0;
+xhr.send(off);
+};
+</script>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
+<script>
+	  
+	  function configuracoes() {
+		console.log("Botão Configurações clicado!");
+	  }
+	  
+  $(document).ready(function()  {
+
+
+	$("#goodbtn").parent().on("click","#goodbtn", function () {
+
+       $("#pagdark").removeClass('bg-dark').addClass('bg-white');
+
+	   $("#tit").css("color", "black");
+	   $("#descr").css("color", "black");
+	   $("#foo").css("color", "black");
+	   $("#foo").removeClass('text-white-50').addClass('text-black-50');
+
+	   $('#pagdark').attr("id", "pagwhite");
+	   $('#goodbtn').attr("id", "badbtn");
+       });
+
+	$("#goodbtn").parent().on("click","#badbtn",function () {
+
+	$("#pagwhite").removeClass('bg-white').addClass('bg-dark');
+
+	$("#tit").css("color", "white");
+	$("#descr").css("color", "white");
+	$("#foo").removeClass('text-black-50').addClass('text-white-50');
+
+	$('#pagwhite').attr("id", "pagdark");
+	$('#badbtn').attr("id", "goodbtn");
+
+	});
+
+	$('.bot').on('click',function(e){
+    $(this).find('i').addClass('fa-check-circle');
+  $(this).find('a').addClass('chk');
+    $(this).find('i').removeClass('fa-circle');
+    $('.bot').css('pointer-events','none');
+	$('.bot').removeClass('shake'); setTimeout(function(){$('.bot').addClass('shake'); }, 400); return false;
+});
+
+});
+
+</script>
+
+</html>
