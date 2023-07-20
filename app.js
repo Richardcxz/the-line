@@ -36,6 +36,7 @@ const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.create
   password: 'iLjAuwNfnYaQwOWuPP7N',
   port: 3306,
   database: 'b5a0yocqy8nk6zvkxbeo',
+  connectionLimit: 10
 });
 
 pool.getConnection((err, connection) => {
