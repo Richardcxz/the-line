@@ -12,21 +12,10 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // variáveis usadas nas outras páginas do projeto
-var islogged = 0;
-var usuario = "";
-var usertag = 0;
 var nometarefa = "";
 var arqproj;
-var projetoscriados = 0;
-var projsmembro = 0;
-var totalprojs = 0;
-var projetoscriadoscheck = 0;
-var projsmembrocheck = 0;
-var totalprojscheck = 0;
 var nomeproj = "";
 var descproj = "";
-var projtag = "";
-var iscriador = "";
 //
 
 const publicDirectoryPath = path.join(__dirname, 'www');
@@ -135,6 +124,7 @@ app.post('/fazer-login', function (req, res) {
 });
 
 app.post('/salvar-projeto', function (req, res) {
+  const usertag = req.body.usertag;
   const nomeproj = req.body.nomeproj;
   const descproj = req.body.descproj;
   const tag = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
@@ -154,14 +144,17 @@ app.post('/salvar-projeto', function (req, res) {
 });
 
 app.post('/mudar-info', function (req, res) {
+  const usertag = req.body.usertag;
+
   const usuchg = req.body.usuchg;
   const emailchg = req.body.emailchg;
   const senchg = req.body.senchg;
-  let sql = "UPDATE contas SET nick = nick";
+  let sql = "UPDATE contas SET";
+
   const params = [];
 
   if (usuchg) {
-    sql += ", nick = ?";
+    sql += " nick = ?";
     params.push(usuchg);
   }
   if (emailchg) {
@@ -187,7 +180,6 @@ app.post('/mudar-info', function (req, res) {
     .then(result => {
       if (result.affectedRows > 0) {
         res.send('Informação atualizada com sucesso!');
-        usuario = usuchg;
       } else {
         res.status(400).send('Usuário não encontrado.');
       }
@@ -198,25 +190,31 @@ app.post('/mudar-info', function (req, res) {
 });
 
 app.post('/verificar-login', async function (req, res) {
-    const conn = await pool.getConnection();
+  const usu = req.body.usuario;
+  const conn = await pool.getConnection();
 
-    if (islogged == 1) {
+  pool.query("SELECT nicktag FROM CONTAS WHERE nick = ?", [usu], (err, result) => {
+    if (err) {
+      res.status(500).send('Erro ao salvar a conta no banco de dados.');
+      return;
+    }
+
+    if (result.length > 0) {
       const data = {
-        islogged: "true",
-        username: usuario + "#" + usertag
+        username: result[0].nicktag
       };
       res.json(data);
     } else {
       const data = {
-        islogged: "false"
+        islogged: 0
       };
       res.json(data);
-      
     }
-    
+  });
 });
 
 app.get('/carregar-projetos', async function (req, res) {
+  const usertag = req.body.usertag;
   try {
     const projetos = [];
     const conn = await pool.getConnection();
@@ -235,6 +233,7 @@ app.get('/carregar-projetos', async function (req, res) {
 
 app.get('/carregar-solicitacoes', async function(req, res) {
   var solicitacoes = [];
+  const usertag = req.body.usertag;
 
   try {
     const conn = await pool.getConnection();
@@ -270,23 +269,25 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     res.sendStatus(200);
   });
 
-  app.post('/selecao-proj', async function(req, res) {
+  app.post('/selecao-proj', async function (req, res) {
     const prj = req.body.prj;
+    const usertag = req.body.usertag;
     try {
       const conn = await pool.getConnection();
       const result = await conn.query('SELECT nome, descricao, projtag, criador FROM projetos WHERE nome = ?', [prj]);
-      
-      nomeproj = result[0].nome;
-      descproj = result[0].descricao;
-      projtag = result[0].projtag;
-      
+  
+      const nomeproj = result[0].nome;
+      const descproj = result[0].descricao;
+      const projtag = result[0].projtag;
+  
+      let iscriador = "false";
+  
       if (usertag == result[0].criador) {
         iscriador = "true";
-      } else {
-        iscriador = "false";
       }
-      
-      res.redirect('index4.html');
+  
+      res.json({ nomeproj, descproj, projtag, iscriador });
+  
       conn.release();
     } catch (error) {
       res.status(500).send('Erro ao salvar o texto no banco de dados.');
@@ -615,6 +616,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       });    
       
       app.post('/aceitar-convite', function(req, res) {
+        const usertag = req.body.usertag;
         const nomeprojeto = req.body.nomeproj;
         var projtag = 0;
         var logText;
@@ -644,6 +646,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       });    
       
       app.post('/recusar-convite', function(req, res) {
+        const usertag = req.body.usertag;
         const nomeprojeto = req.body.nomeproj;
         var projtag = 0;
         var logText;
@@ -893,6 +896,7 @@ app.post('/get-anexos', function(req, res) {
 });
 
 app.post('/get-arqproj', async function(req, res) {
+  const usertag = req.body.usertag;
   try {
     pool.getConnection(function(err, conn) {
       if (err) {
@@ -936,11 +940,10 @@ app.post('/get-infoarqproj', function(req, res) {
               nome: row.nome,
               desc: row.descricao,
               tag: row.arqprojtag,
-              log: row.log
+              log: row.log,
             }
            
           });
-          arqproj = data[0].tag;
           res.json(data);
           conn.release();
         })
@@ -952,6 +955,7 @@ app.post('/get-infoarqproj', function(req, res) {
 });
 
 app.post('/get-arqtarefas', function(req, res) {
+  const arqproj = req.body.projtag
   pool.getConnection()
     .then(conn => {
       conn.query('SELECT nome_tarefa FROM tarefas WHERE tag = ?', [arqproj])
@@ -972,11 +976,12 @@ app.post('/get-arqtarefas', function(req, res) {
 });
 
 app.post('/get-infoarqtar', function(req, res) {
+  const projtag = req.body.projtag;
   const data2 = req.body.selectext;
   nometarefa = data2
   pool.getConnection()
     .then(conn => {
-      conn.query('SELECT nome_tarefa, desc_tarefa, criador, IFNULL(code, "") AS code FROM tarefas WHERE nome_tarefa = ?', [data2])
+      conn.query('SELECT nome_tarefa, desc_tarefa, criador, IFNULL(code, "") AS code FROM tarefas WHERE nome_tarefa = ? AND tag = ?', [data2, projtag])
         .then(result => {
           const data = result.map(row => {
             return {
