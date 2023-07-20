@@ -27,6 +27,7 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
+  console.log(`Servidor está executando`);
 });
 
 const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.createPool
@@ -38,7 +39,11 @@ const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.create
   connectionLimit: 10
 });
 
-pool.getConnection({
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('Erro ao conectar ao banco de dados:', err);
+    return;
+  }
   console.log('Conexão estabelecida com o banco de dados.');
   pool.release();
 });
