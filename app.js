@@ -45,7 +45,7 @@ pool.getConnection((err, connection) => {
     return;
   }
   console.log('Conexão estabelecida com o banco de dados.');
-  pool.release();
+  connection.release();
 });
 
 app.post('/salvar-conta', function(req, res) {
