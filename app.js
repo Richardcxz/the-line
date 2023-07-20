@@ -40,7 +40,7 @@ const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.create
 
 pool.getConnection({
   console.log('Conexão estabelecida com o banco de dados.');
-  connection.release();
+  pool.release();
 });
 
 app.post('/salvar-conta', function(req, res) {
