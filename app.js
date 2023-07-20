@@ -27,7 +27,6 @@ app.get('/', (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`Servidor está executando na porta ${port}`);
 });
 
 const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.createPool
