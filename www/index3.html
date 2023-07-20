@@ -357,59 +357,76 @@ function handleInput(event) {
 </script>
 
 <script>
-	const usuario = localStorage.getItem('usuario');
+  const usuario = localStorage.getItem('usuario');
 
-	fetch('/verificar-login', {
-	  method: 'POST',
-	  headers: {
-		'Content-Type': 'application/json'
-	  },
-	  body: JSON.stringify({ usuario })
-	})
-	.then(response => {
-	  return response.json();
-	})
-	.then(data => {
-	  if (localStorage.getItem('islogged') == 1) {
-		document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
-		localStorage.setItem('usertag', data.username);
-	  } else {
-		alert("Erro, você não está logado!");
-		setTimeout(function() {
-		  location.replace("index.html");
-		}, 100);
-	  }
+  fetch('/verificar-login', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ usuario })
+  })
+  .then(response => {
+    return response.json();
+  })
+  .then(data => {
+    if (localStorage.getItem('islogged') == 1) {
+      document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
+      localStorage.setItem('usertag', data.username);
+    } else {
+      alert("Erro, você não está logado!");
+      setTimeout(function() {
+        location.replace("index.html");
+      }, 100);
+    }
 
-	  fetch('/carregar-projetos?usertag=' + localStorage.getItem('usertag'))
-	  .then(response => {
-		return response.json();
-	  })
-	  .then(data => {
-		const select = document.getElementById('projetos');
-		data.forEach(projeto => {
-		  const option = document.createElement('option');
-		  option.value = projeto;
-		  option.text = projeto;
-		  select.appendChild(option);
-		});
-	  })
-	  .catch(error => {
-		console.error('Erro:', error);
-	  });
+    setTimeout(function() {
+      carregarProjetos();
+    }, 1000);
 
-fetch('/carregar-solicitacoes?usertag=' + localStorage.getItem('usertag'))
-.then(response => response.json())
-.then(data => {
-  var select = document.getElementById('solic');
-  data.forEach(solicitacao => {
-	var option = document.createElement('option');
-	option.text = solicitacao;
-	select.add(option);
+    setTimeout(function() {
+      carregarSolicitacoes();
+    }, 2000);
+  })
+  .catch(error => {
+    console.error('Erro:', error);
   });
-})
-.catch(error => {
-  console.error('Erro ao carregar as solicitações:', error);
-});
+
+  function carregarProjetos() {
+    fetch('/carregar-projetos?usertag=' + localStorage.getItem('usertag'))
+    .then(response => {
+      return response.json();
+    })
+    .then(data => {
+      const select = document.getElementById('projetos');
+      data.forEach(projeto => {
+        const option = document.createElement('option');
+        option.value = projeto;
+        option.text = projeto;
+        select.appendChild(option);
+      });
+    })
+    .catch(error => {
+      console.error('Erro:', error);
+    });
+  }
+
+  function carregarSolicitacoes() {
+    fetch('/carregar-solicitacoes?usertag=' + localStorage.getItem('usertag'))
+    .then(response => response.json())
+    .then(data => {
+      var select = document.getElementById('solic');
+      data.forEach(solicitacao => {
+        var option = document.createElement('option');
+        option.text = solicitacao;
+        select.add(option);
+      });
+    })
+    .catch(error => {
+      console.error('Erro ao carregar as solicitações:', error);
+    });
+  }
+
 
 function mudarinfo() {
 	if (confirm("Confirmar alterações?")) {
