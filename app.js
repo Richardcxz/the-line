@@ -80,41 +80,53 @@ app.post('/fazer-login', function (req, res) {
   const usu = req.body.usu;
   const sen = req.body.sen;
 
-  pool.getConnection()
-    .then(conn => {
-      return conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sen])
-        .then(result => {
-          conn.release();
-
-          if (result.length > 0) {
-            usertag = result[0].nicktag;
-            islogged = 1;
-            usuario = usu;
-
-            return conn.query('SELECT COUNT(*) AS projsmembro FROM membros WHERE usertag = ?', [usertag]);
-          } else {
-            res.status(401).send('Usuário ou senha inválidos');
-          }
-        })
-        .then(result => {
-          projsmembro = parseInt(result[0].projsmembro);
-
-          return conn.query('SELECT COUNT(*) AS projscriados FROM projetos WHERE criador = ?', [usertag]);
-        })
-        .then(result => {
-          projetoscriados = parseInt(result[0].projscriados);
-          totalprojs = projsmembro + projetoscriados;
-          res.redirect('index3.html');
-        })
-        .catch(error => {
-          console.error('Erro ao realizar a consulta ao banco de dados:', error);
-          res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
-        });
-    })
-    .catch(err => {
+  pool.getConnection((err, conn) => {
+    if (err) {
       console.error('Erro ao se conectar ao banco de dados:', err);
       res.status(500).send('Erro ao se conectar ao banco de dados.');
+      return;
+    }
+
+    conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sen], (err, result) => {
+      conn.release();
+
+      if (err) {
+        console.error('Erro ao realizar a consulta ao banco de dados:', err);
+        res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
+        return;
+      }
+
+      if (result.length > 0) {
+        usertag = result[0].nicktag;
+        islogged = 1;
+        usuario = usu;
+
+        conn.query('SELECT COUNT(*) AS projsmembro FROM membros WHERE usertag = ?', [usertag], (err, result) => {
+          if (err) {
+            console.error('Erro ao realizar a consulta ao banco de dados:', err);
+            res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
+            return;
+          }
+
+          projsmembro = parseInt(result[0].projsmembro);
+
+          conn.query('SELECT COUNT(*) AS projscriados FROM projetos WHERE criador = ?', [usertag], (err, result) => {
+            if (err) {
+              console.error('Erro ao realizar a consulta ao banco de dados:', err);
+              res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
+              return;
+            }
+
+            projetoscriados = parseInt(result[0].projscriados);
+            totalprojs = projsmembro + projetoscriados;
+            res.redirect('index3.html');
+          });
+        });
+      } else {
+        res.status(401).send('Usuário ou senha inválidos');
+      }
     });
+  });
 });
 
 app.post('/salvar-projeto', function (req, res) {
