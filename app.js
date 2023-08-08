@@ -184,12 +184,7 @@ app.post('/verificar-login', async function (req, res) {
   const usu = req.body.usuario;
   const conn = await pool.getConnection();
 
-  pool.query("SELECT nicktag FROM CONTAS WHERE nick = ?", [usu], (err, result) => {
-    if (err) {
-      res.status(500).send('Erro ao salvar a conta no banco de dados.');
-      return;
-    }
-
+  const result = await conn.query("SELECT nicktag FROM CONTAS WHERE nick = ?", [usu]);
     if (result.length > 0) {
       const data = {
         username: result[0].nicktag
@@ -201,7 +196,6 @@ app.post('/verificar-login', async function (req, res) {
       };
       res.json(data);
     }
-  });
 });
 
 app.get('/carregar-projetos', async function (req, res) {
