@@ -51,6 +51,13 @@
         }
       }
       </style>
+	<script>
+      $(document).ready(function() {
+          $("body").on("contextmenu", function(e) {
+              return false;
+            });
+        });
+    </script>
    
 	<div class="cover-container d-flex w-100 h-50 p-3 mx-auto flex-column">
 		<header class="mb-auto text-white animate__animated animate__fadeIn animate__delay-1s">
