@@ -100,28 +100,7 @@ app.post('/fazer-login', function (req, res) {
         usertag = result[0].nicktag;
         islogged = 1;
         usuario = usu;
-
-        conn.query('SELECT COUNT(*) AS projsmembro FROM membros WHERE usertag = ?', [usertag], (err, result) => {
-          if (err) {
-            console.error('Erro ao realizar a consulta ao banco de dados:', err);
-            res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
-            return;
-          }
-
-          projsmembro = parseInt(result[0].projsmembro);
-
-          conn.query('SELECT COUNT(*) AS projscriados FROM projetos WHERE criador = ?', [usertag], (err, result) => {
-            if (err) {
-              console.error('Erro ao realizar a consulta ao banco de dados:', err);
-              res.status(500).send('Erro ao realizar a consulta ao banco de dados.');
-              return;
-            }
-
-            projetoscriados = parseInt(result[0].projscriados);
-            totalprojs = projsmembro + projetoscriados;
-            res.redirect('index3.html');
-          });
-        });
+        res.redirect('index3.html');
       } else {
         res.status(401).send('Usuário ou senha inválidos');
       }
