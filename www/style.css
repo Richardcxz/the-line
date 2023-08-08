@@ -8,7 +8,7 @@ body {
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    cursor: url('cursor.png'), auto;
+    cursor: crosshair;
 }
 #bg-video {
 	position: fixed;
