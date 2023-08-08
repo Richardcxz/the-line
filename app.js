@@ -30,7 +30,7 @@ app.listen(port, () => {
   console.log(`Servidor está executando`);
 });
 
-const pool = mysql.createPool({ // Use mysql.createPool em vez de mariadb.createPool
+const pool = mysql.createPool({
   host: 'b5a0yocqy8nk6zvkxbeo-mysql.services.clever-cloud.com',
   user: 'ukoz6hn5habn25uo',
   password: 'iLjAuwNfnYaQwOWuPP7N',
