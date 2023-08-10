@@ -35,7 +35,10 @@ const pool = mysql.createPool({
   user: 'root',
   password: 'GnmUmmYf7h8IINotqiR3',
   port: 7380,
-  database: 'railway'
+  database: 'railway',
+  waitForConnections: true,
+  connectionLimit: 0,
+  queueLimit: 0
 });
 
 pool.getConnection((err, connection) => {
@@ -108,7 +111,7 @@ app.post('/fazer-login', function (req, res) {
 });
 
 app.post('/salvar-projeto', function (req, res) {
-  const usertag = req.body.usertag;
+  const usertag = req.query.usertag;
   const nomeproj = req.body.nomeproj;
   const descproj = req.body.descproj;
   const tag = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
@@ -119,7 +122,6 @@ app.post('/salvar-projeto', function (req, res) {
         .then(result => {
           conn.release();
           res.send('Projeto salvo com sucesso!');
-          projetoscriados++;
         })
         .catch(error => {
           console.error('Erro ao salvar o projeto no banco de dados.', error);
@@ -133,7 +135,7 @@ app.post('/salvar-projeto', function (req, res) {
 });
 
 app.post('/mudar-info', function (req, res) {
-  const usertag = req.body.usertag;
+  const usertag = req.query.usertag;
 
   const usuchg = req.body.usuchg;
   const emailchg = req.body.emailchg;
@@ -179,26 +181,49 @@ app.post('/mudar-info', function (req, res) {
     });
 });
 
-app.post('/verificar-login', async function (req, res) {
+app.post('/verificar-login', function (req, res) {
   const usu = req.body.usuario;
-  const conn = await pool.getConnection();
 
-  const result = await conn.query("SELECT nicktag FROM CONTAS WHERE nick = ?", [usu]);
-    if (result.length > 0) {
-      const data = {
-        username: result[0].nicktag
-      };
-      res.json(data);
-    } else {
+  pool.getConnection((err, conn) => {
+    if (err) {
+      console.error('Error getting database connection:', err);
       const data = {
         islogged: 0
       };
       res.json(data);
+      return;
     }
+
+    conn.query('SELECT nicktag FROM contas WHERE nick = ?', [usu], (err, result) => {
+      conn.release();
+
+      if (err) {
+        console.error('Error executing query:', err);
+        const data = {
+          islogged: 0
+        };
+        res.json(data);
+        return;
+      }
+
+      if (result.length > 0) {
+        const data = {
+          username: result[0].nicktag
+        };
+        res.json(data);
+      } else {
+        const data = {
+          islogged: 0
+        };
+        res.json(data);
+      }
+    });
+  });
 });
 
+
 app.get('/carregar-projetos', async function (req, res) {
-  const usertag = req.body.usertag;
+  const usertag = req.query.usertag;
   try {
     const projetos = [];
     const conn = await pool.getConnection();
@@ -217,7 +242,7 @@ app.get('/carregar-projetos', async function (req, res) {
 
 app.get('/carregar-solicitacoes', async function(req, res) {
   var solicitacoes = [];
-  const usertag = req.body.usertag;
+  const usertag = req.query.usertag;
 
   try {
     const conn = await pool.getConnection();
@@ -240,22 +265,10 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     res.status(500).send('Erro ao buscar as solicitações no banco de dados.');
   }
 });
- 
-  app.post('/deslogar', (req, res) => {
-    const valor = req.body.off;
-    islogged = valor;
-    usuario = "";
-    usertag = 0;
-    projetoscriados = 0;
-    projsmembro = 0;
-    totalprojs = 0;
-    counter = -1;
-    res.sendStatus(200);
-  });
 
   app.post('/selecao-proj', async function (req, res) {
     const prj = req.body.prj;
-    const usertag = req.body.usertag;
+    const usertag = req.query.usertag;
     try {
       const conn = await pool.getConnection();
       const result = await conn.query('SELECT nome, descricao, projtag, criador FROM projetos WHERE nome = ?', [prj]);
@@ -312,7 +325,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
             }
             conn.query('UPDATE projetos SET tarefas_pend = ?, log = ? WHERE projtag = ?', [newTarefasPend, logText, projtag])
               .then(result => {
-                conn.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, tag, criador, finalizada, excluida) VALUES (?, ?, ?, ?, ?, 0, 0)", [tarnome, tardesc, tagtarefa, projtag, usertag])
+                conn.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida) VALUES (?, ?, ?, ?, ?, 0, 0)", [tarnome, tardesc, tagtarefa, projtag, usertag])
                   .then(result => {
                     res.send('Tarefa salva com sucesso!');
                   });
@@ -327,7 +340,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     app.post('/get-tarefas', function(req, res) {
       pool.getConnection()
         .then(conn => {
-          conn.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE tag = ? AND finalizada = 0 AND excluida = 0', [projtag])
+          conn.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 0 AND excluida = 0', [projtag])
             .then(result => {
               const data = result.map(row => {
                 return {
@@ -349,7 +362,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     app.post('/get-tarefasarq', function(req, res) {
       pool.getConnection()
         .then(conn => {
-          conn.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE tag = ? AND finalizada = 1 AND excluida = 0', [projtag])
+          conn.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 1 AND excluida = 0', [projtag])
             .then(result => {
               const data = result.map(row => {
                 return {
@@ -600,7 +613,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       });    
       
       app.post('/aceitar-convite', function(req, res) {
-        const usertag = req.body.usertag;
+        const usertag = req.query.usertag;
         const nomeprojeto = req.body.nomeproj;
         var projtag = 0;
         var logText;
@@ -630,7 +643,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       });    
       
       app.post('/recusar-convite', function(req, res) {
-        const usertag = req.body.usertag;
+        const usertag = req.query.usertag;
         const nomeprojeto = req.body.nomeproj;
         var projtag = 0;
         var logText;
@@ -673,8 +686,6 @@ app.get('/carregar-solicitacoes', async function(req, res) {
                   return conn.query('SELECT COUNT(*) AS projscriados FROM projetos WHERE criador = ?', [mbr1]);
                 })
                 .then(result => {
-                  projetoscriadoscheck = parseInt(result[0].projscriados);
-                  totalprojscheck = projsmembrocheck + projetoscriadoscheck;
                   
                     return conn.query("INSERT INTO notificacoes (projtag, usertag) VALUES (?, ?)", [projtag, mbr1])
                       .then(result => {
@@ -856,7 +867,7 @@ app.post('/add-anexo', function(req, res) {
 app.post('/get-anexos', function(req, res) {
   pool.getConnection()
     .then(conn => {
-      conn.query('SELECT anexos FROM tarefas WHERE tag = ? AND nome_tarefa = ?', [projtag, nometarefa])
+      conn.query('SELECT anexos FROM tarefas WHERE projtag = ? AND nome_tarefa = ?', [projtag, nometarefa])
         .then(result => {
           const data = [];
           if (result.length > 0 && result[0].anexos !== null) {
@@ -880,7 +891,7 @@ app.post('/get-anexos', function(req, res) {
 });
 
 app.post('/get-arqproj', async function(req, res) {
-  const usertag = req.body.usertag;
+  const usertag = req.query.usertag;
   try {
     pool.getConnection(function(err, conn) {
       if (err) {
@@ -942,7 +953,7 @@ app.post('/get-arqtarefas', function(req, res) {
   const arqproj = req.body.projtag
   pool.getConnection()
     .then(conn => {
-      conn.query('SELECT nome_tarefa FROM tarefas WHERE tag = ?', [arqproj])
+      conn.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ?', [arqproj])
         .then(result => {
           const data2 = result.map(row => {
             return {
