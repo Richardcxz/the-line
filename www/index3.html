@@ -5,7 +5,6 @@
     <title>DASHBOARD</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet">
-	<link href="cover.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
 	<link rel="icon" type="image/x-icon" href="1x1.png">
@@ -272,6 +271,7 @@
 		document.getElementById("display").hidden=true;
 	}
 	function meusprojetos() {
+		carregarprojetos();
 		document.getElementById("criarproj").hidden=true;
 		document.getElementById("meusprojetos").hidden=false;
 		document.getElementById("projetosarq").hidden=true;
@@ -279,12 +279,15 @@
 		document.getElementById("display").hidden=true;
 	}
 	function arqprojetos() {
+		projetosarquivados();
 		document.getElementById("criarproj").hidden=true;
 		document.getElementById("meusprojetos").hidden=true;
 		document.getElementById("projetosarq").hidden=false;
 		document.getElementById("configu").hidden=true;
 		document.getElementById("display").hidden=true;
+		
 	}
+
 	let counter;
 	function caixa() {
 		if(counter==1){
@@ -292,10 +295,112 @@
 		counter = 0;
 		}
 		else{
+		carregarsolicitacoes();
 		document.getElementById("notif").hidden=false;
 		counter = 1;
 	    }
 	}
+
+	function projetosarquivados(){
+		let codigo = "";
+		var code = document.getElementById("code");
+		var CodeMirror = CodeMirror.fromTextArea(code, {
+		  lineNumbers: true,
+		  viewportMargin: 2,
+		  matchBrackets: true,
+		  readOnly: true,
+		  mode: "text/x-csrc",
+		  theme: "material-darker"
+		});
+	
+		fetch('/get-arqproj?usertag=' + localStorage.getItem('usertag'), {
+			method: 'POST',
+		  })
+			.then(response => {
+			  return response.json();
+			})
+			.then(data => {
+			  data.forEach(nome => {
+	
+	
+			  const select = document.querySelector('select[id="Projetos"]');
+	
+			  const option = document.createElement('option');
+			  option.value = nome.nome;
+			  option.text = nome.nome;
+	
+			  select.appendChild(option);
+		  select.addEventListener('change', function() {
+	
+		  const select = document.getElementById("Projetos");
+			  const selectedOption = select.options[select.selectedIndex];
+			  const selectext = selectedOption.textContent;
+	
+				fetch('/get-infoarqproj', {
+					method: 'POST',
+					headers: {'Content-Type': 'application/json'},
+					body: JSON.stringify({ selectext })
+					}).then(response => {
+					  return response.json();
+					}).then(data => {
+					console.log(data)
+					localStorage.setItem('projtag', data[0].tag);
+					document.getElementById('Nomeproj1').innerHTML = data[0].nome
+					document.getElementById('Descproj1').innerHTML = data[0].desc
+					document.getElementById('log').innerHTML = data[0].log;
+					document.getElementById("Proj2").removeAttribute('hidden')
+					document.getElementById("Proj4").removeAttribute('hidden')
+					document.getElementById('Projetos').setAttribute('disabled', 'true')			
+					})
+					fetch('/get-arqtarefas?projtag=' + localStorage.getItem('projtag'), {
+						method: 'POST'
+					}).then(response => {
+						return response.json();
+					}).then(data2 => {
+						data2.forEach(tarefa => {
+	
+							const select = document.querySelector('select[id="Tarefas"]');
+	
+							if (!select.querySelector(`[id="${tarefa.tarefa}"]`)) {
+	
+								const option = document.createElement('option');
+								option.value = tarefa.tarefa;
+								option.text = tarefa.tarefa;
+								option.id = tarefa.tarefa; // adiciona um id único à opção
+	
+								select.appendChild(option);
+								select.addEventListener('change', function() {
+	
+									const select = document.getElementById("Tarefas");
+									const selectedOption = select.options[select.selectedIndex];
+									const selectext = selectedOption.textContent;
+	
+									  fetch('/get-infoarqtar?projtag=' + localStorage.getItem('projtag'), {
+										  method: 'POST',
+										  headers: {'Content-Type': 'application/json'},
+										  body: JSON.stringify({ selectext })
+										  }).then(response => {
+											return response.json();
+										  }).then(data => {
+											console.log(data);
+										  document.getElementById('NomeTar').innerHTML = data[0].tarefa
+										  document.getElementById('DescTar').innerHTML = data[0].desctarefa
+										  codigo = data[0].code
+										  CodeMirror.setValue(codigo)
+										  document.getElementById("Proj3").style.visibility = "visible";
+										  document.getElementById('Tarefas').setAttribute('disabled', 'true')		
+										  })
+									});
+	
+	
+							}
+						});
+					})
+	
+			  });
+			  });});
+	}
+
 	function configs() {
 
 		document.getElementById("tres").addEventListener("mouseout", function() {
@@ -411,7 +516,6 @@ function handleInput(event) {
 	  if (localStorage.getItem('islogged') == 1) {
 		document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
 		localStorage.setItem('usertag', data.username);
-		carregarprojetos();
 	  } else {
 		alert("Erro, você não está logado!");
 		setTimeout(function() {
@@ -433,7 +537,6 @@ function handleInput(event) {
 		  option.text = projeto;
 		  select.appendChild(option);
 		});
-		carregarsolicitacoes();
 	  })
 	  .catch(error => {
 		console.error('Erro:', error);
@@ -590,105 +693,6 @@ function mudarinfo() {
 	  });  
 	}
 
-	let codigo = "";
-	var code = document.getElementById("code");
-	var CodeMirror = CodeMirror.fromTextArea(code, {
-	  lineNumbers: true,
-	  viewportMargin: 2,
-	  matchBrackets: true,
-	  readOnly: true,
-	  mode: "text/x-csrc",
-	  theme: "material-darker"
-	});
-
-	fetch('/get-arqproj?usertag=' + localStorage.getItem('usertag'), {
-		method: 'POST',
-	  })
-		.then(response => {
-		  return response.json();
-		})
-		.then(data => {
-		  data.forEach(nome => {
-
-
-          const select = document.querySelector('select[id="Projetos"]');
-
-          const option = document.createElement('option');
-          option.value = nome.nome;
-          option.text = nome.nome;
-
-          select.appendChild(option);
-	  select.addEventListener('change', function() {
-
-	  const select = document.getElementById("Projetos");
-          const selectedOption = select.options[select.selectedIndex];
-          const selectext = selectedOption.textContent;
-
-			fetch('/get-infoarqproj', {
-				method: 'POST',
-				headers: {'Content-Type': 'application/json'},
-				body: JSON.stringify({ selectext })
-				}).then(response => {
-				  return response.json();
-				}).then(data => {
-				console.log(data)
-				localStorage.setItem('projtag', data[0].tag);
-				document.getElementById('Nomeproj1').innerHTML = data[0].nome
-				document.getElementById('Descproj1').innerHTML = data[0].desc
-				document.getElementById('log').innerHTML = data[0].log;
-				document.getElementById("Proj2").removeAttribute('hidden')
-				document.getElementById("Proj4").removeAttribute('hidden')
-				document.getElementById('Projetos').setAttribute('disabled', 'true')			
-				})
-				fetch('/get-arqtarefas?projtag=' + localStorage.getItem('projtag'), {
-					method: 'POST'
-				}).then(response => {
-					return response.json();
-				}).then(data2 => {
-					data2.forEach(tarefa => {
-
-						const select = document.querySelector('select[id="Tarefas"]');
-
-						if (!select.querySelector(`[id="${tarefa.tarefa}"]`)) {
-
-							const option = document.createElement('option');
-							option.value = tarefa.tarefa;
-							option.text = tarefa.tarefa;
-							option.id = tarefa.tarefa; // adiciona um id único à opção
-
-							select.appendChild(option);
-							select.addEventListener('change', function() {
-
-								const select = document.getElementById("Tarefas");
-								const selectedOption = select.options[select.selectedIndex];
-								const selectext = selectedOption.textContent;
-
-								  fetch('/get-infoarqtar?projtag=' + localStorage.getItem('projtag'), {
-									  method: 'POST',
-									  headers: {'Content-Type': 'application/json'},
-									  body: JSON.stringify({ selectext })
-									  }).then(response => {
-										return response.json();
-									  }).then(data => {
-										console.log(data);
-									  document.getElementById('NomeTar').innerHTML = data[0].tarefa
-									  document.getElementById('DescTar').innerHTML = data[0].desctarefa
-									  codigo = data[0].code
-		                              CodeMirror.setValue(codigo)
-									  document.getElementById("Proj3").style.visibility = "visible";
-									  document.getElementById('Tarefas').setAttribute('disabled', 'true')		
-									  })
-								});
-
-
-						}
-					});
-				})
-
-		  });
-		  });});
-
-	
 	function sairacc(){
 			localStorage.setItem('islogged', 0);
 			localStorage.setItem('projtag', '');
