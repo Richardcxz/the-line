@@ -253,16 +253,7 @@
 
 
 
-<script>
-	
-    function salvarDadosNaLocalStorage(nomeproj, descproj, projtag, iscriador) {
-		localStorage.setItem('nomeproj', nomeproj);
-		localStorage.setItem('descproj', descproj);
-		localStorage.setItem('projtag', projtag);
-		localStorage.setItem('iscriador', iscriador);
-	  }
-	
-	  
+<script>  
 	function criarprojeto() {
 		document.getElementById("criarproj").hidden=false;
 		document.getElementById("meusprojetos").hidden=true;
@@ -279,12 +270,12 @@
 		document.getElementById("display").hidden=true;
 	}
 	function arqprojetos() {
-		projetosarquivados();
 		document.getElementById("criarproj").hidden=true;
 		document.getElementById("meusprojetos").hidden=true;
 		document.getElementById("projetosarq").hidden=false;
 		document.getElementById("configu").hidden=true;
 		document.getElementById("display").hidden=true;
+		projetosarquivados();
 		
 	}
 
@@ -563,7 +554,7 @@ fetch('/carregar-solicitacoes?usertag=' + localStorage.getItem('usertag'))
 function mudarinfo() {
 	if (confirm("Confirmar alterações?")) {
 	  const xhr = new XMLHttpRequest();
-	  xhr.open('POST', '/mudar-info');
+	  xhr.open('POST', '/mudar-info?usertag=' + localStorage.getItem('usertag'));
 	  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	  xhr.onload = function () {
 		if (xhr.status === 200) {
@@ -573,21 +564,18 @@ function mudarinfo() {
 		}
 	  };
   
-	  const usertag = localStorage.getItem('usertag');
-  
 	  const usuchg = document.getElementById('usuchg').value;
 	  const senchg = document.getElementById('senchg').value;
 	  const emailchg = document.getElementById('emailchg').value;
   
-	  const dados = 'usertag=' + encodeURIComponent(usertag) +
-		'&usuchg=' + encodeURIComponent(usuchg) +
+	  const dados = 'usuchg=' + encodeURIComponent(usuchg) +
 		'&senchg=' + encodeURIComponent(senchg) +
 		'&emailchg=' + encodeURIComponent(emailchg);
   
 	  xhr.send(dados);
   
 	  setTimeout(function () {
-		location.replace("index3.html");
+		sairacc()
 	  }, 300);
 	}
   }
@@ -619,24 +607,30 @@ function mudarinfo() {
 	function projselecao() {
 		const select = document.getElementById('projetos');
 		const selectedOption = select.options[select.selectedIndex].text;
-  
+	  
 		const xhr = new XMLHttpRequest();
 		xhr.open('POST', '/selecao-proj?usertag=' + localStorage.getItem('usertag'));
 		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		xhr.onload = function () {
 		  if (xhr.status === 200) {
-			const responseData = JSON.parse(xhr.responseText);
-			const { nomeproj, descproj, projtag, iscriador } = responseData;
-  
-			salvarDadosNaLocalStorage(nomeproj, descproj, projtag, iscriador);
-  
-			location.replace('index4.html');
+			try {
+			  const data = JSON.parse(xhr.responseText);
+			  localStorage.setItem('nomeproj', data.nomeproj.slice(0, -5));
+			  localStorage.setItem('descproj', data.descproj);
+			  localStorage.setItem('projtag', data.projtag);
+			  localStorage.setItem('iscriador', data.iscriador);
+	  
+			  location.replace('index4.html');
+			} catch (error) {
+			  console.error('Error parsing JSON response:', error);
+			}
 		  }
 		};
-  
+	  
 		const dados = 'prj=' + encodeURIComponent(selectedOption);
 		xhr.send(dados);
 	  }
+	  
 
 	  function aceitar() {
 		const selectElement = document.getElementById('solic');
