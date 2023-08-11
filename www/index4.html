@@ -14,6 +14,8 @@
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
 	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
 
 
     
@@ -461,6 +463,7 @@
 		xhr.send(dados);
 	}
 
+	function gerMembros(){
 	fetch('/get-membros', {
 		method: 'POST',
 	  })
@@ -479,7 +482,9 @@
 	  .catch(error => {
 		console.error('Erro:', error);
 	  });
-	
+	}
+
+	function gerLog(){
 	  fetch('/get-log', {
 		method: 'POST',
 	  })
@@ -493,10 +498,9 @@
 	  .catch(error => {
 		console.error('Erro:', error);
 	  });
-	  
-</script>
+	}
 
-<script>
+	function gerTarefas(){
 	fetch('/get-tarefas', {
 		method: 'POST',
 	  })
@@ -521,7 +525,9 @@
 		.catch(error => {
 		  console.error('Erro:', error);
 		});
+	}
 
+	function gerTarefasArq(){
 		fetch('/get-tarefasarq', {
 			method: 'POST',
 		  })
@@ -568,29 +574,13 @@
 			.catch(error => {
 			  console.error('Erro:', error);
 			});
+		}
 </script>
 
 <script>
-	fetch('/info-proj', {
-		method: 'POST',
-		// restante do código de envio de dados
-	  }).then(response => {
-		return response.json();
-	  }).then(data => {
-		const nomeProjeto = data.nome;
-		const descricaoProjeto = data.descricao;
-		if(data.iscriador == "true") {
-		document.getElementById('sair').setAttribute('hidden', 'true');
-		}
-		else{
-		document.getElementById('terminar').setAttribute('hidden', 'true');
-		}
-		document.getElementById('prjnome').innerHTML = nomeProjeto
-		document.getElementById('prjdesc').innerHTML = descricaoProjeto
-		// restante do código de manipulação dos dados recebidos
-	  }).catch(error => {
-		console.error('Erro:', error);
-	  });	  
+		document.getElementById('prjnome').innerHTML = localStorage.getItem('nomeproj');
+		
+		document.getElementById('prjdesc').innerHTML = localStorage.getItem('descproj');
 	</script>
 
 <script>
@@ -699,22 +689,17 @@ function escolhertarefa() {
 		.then(data => {
 		  data.forEach(data => {
 
-		  // seleciona o elemento select
           const select = document.querySelector('select[id="Anexos"]');
 
-          // cria uma nova opção
           const option = document.createElement('option');
           option.value = data.link;
           option.text = data.name;
 
-          // adiciona a nova opção ao select
           select.appendChild(option);
           select.addEventListener('change', function() {
-          // obtém o link selecionado
 
 		  const url = 'http://' + this.value;
 
-          // abre o link em uma nova guia
           window.open(url, '_blank');
 		  select.selectedIndex = -1;
           });
@@ -807,26 +792,16 @@ function sairprojeto() {
 </script>
 
 <script>
-		fetch('/verificar-login', {
-		method: 'POST',
-	  })
-		.then(response => {
-		  return response.json();
-		})
-		.then(data => {
-		if(data.islogged == "true"){
-		}
-		else{
-		alert("Erro, você não está logado!")
-		setTimeout(function() {
-		location.replace("index.html");
-		}, 200);
+		if (localStorage.getItem('islogged') == 1) {
+		  document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
+		  localStorage.setItem('usertag', data.username);
+		} else {
+		  alert("Erro, você não está logado!");
+		  setTimeout(function() {
+			location.replace("index.html");
+		  }, 100);
 		}
 
-		  });
-</script>
-
-<script>
 	fetch('/dados-tarefas', {
 		method: 'POST'
 	    }).then(response => {
@@ -858,49 +833,3 @@ function sairprojeto() {
       })
 	})
 </script>
-
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css"/>
-<script>
-  $(document).ready(function()  {
-
-
-	$("#goodbtn").parent().on("click","#goodbtn", function () {
-
-       $("#pagdark").removeClass('bg-dark').addClass('bg-white');
-
-	   $("#tit").css("color", "black");
-	   $("#descr").css("color", "black");
-	   $("#foo").css("color", "black");
-	   $("#foo").removeClass('text-white-50').addClass('text-black-50');
-
-	   $('#pagdark').attr("id", "pagwhite");
-	   $('#goodbtn').attr("id", "badbtn");
-       });
-
-	$("#goodbtn").parent().on("click","#badbtn",function () {
-
-	$("#pagwhite").removeClass('bg-white').addClass('bg-dark');
-
-	$("#tit").css("color", "white");
-	$("#descr").css("color", "white");
-	$("#foo").removeClass('text-black-50').addClass('text-white-50');
-
-	$('#pagwhite').attr("id", "pagdark");
-	$('#badbtn').attr("id", "goodbtn");
-
-	});
-
-	$('.bot').on('click',function(e){
-    $(this).find('i').addClass('fa-check-circle');
-  $(this).find('a').addClass('chk');
-    $(this).find('i').removeClass('fa-circle');
-    $('.bot').css('pointer-events','none');
-	$('.bot').removeClass('shake'); setTimeout(function(){$('.bot').addClass('shake'); }, 400); return false;
-});
-
-});
-
-</script>
-
-</html>
