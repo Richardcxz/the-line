@@ -90,7 +90,6 @@ app.post('/fazer-login', function (req, res) {
     }
 
     conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sen], (err, result) => {
-      conn.release();
 
       if (err) {
         console.error('Erro ao realizar a consulta ao banco de dados:', err);
@@ -110,33 +109,41 @@ app.post('/fazer-login', function (req, res) {
   });
 });
 
-app.post('/salvar-projeto', function (req, res) {
+app.post('/salvar-projeto', async (req, res) => {
   const usertag = req.query.usertag;
-  const nomeproj = req.body.nomeproj;
   const descproj = req.body.descproj;
   const tag = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
+  const nomeproj = req.body.nomeproj + "#" + tag;
 
-  pool.getConnection()
-    .then(conn => {
-      return conn.query("INSERT INTO projetos (nome, descricao, criador, projtag) VALUES (?, ?, ?, ?)", [nomeproj, descproj, usertag, tag])
-        .then(result => {
-          conn.release();
-          res.send('Projeto salvo com sucesso!');
-        })
-        .catch(error => {
-          console.error('Erro ao salvar o projeto no banco de dados.', error);
-          res.status(500).send('Erro ao salvar o projeto no banco de dados.');
+  pool.query("SELECT COUNT(*) AS count FROM projetos WHERE criador = ? AND nome = ?", [usertag, nomeproj], (error, result) => {
+    if (error) {
+      console.error('Erro ao consultar o banco de dados.', error);
+      return res.status(500).send('Erro ao consultar o banco de dados.');
+    } 
+    if (result[0].count > 0) {
+      return res.send('Um projeto com o mesmo nome já existe!');
+    } else {
+      try {
+        pool.query("INSERT INTO projetos (nome, descricao, criador, projtag) VALUES (?, ?, ?, ?)", [nomeproj, descproj, usertag, tag], (error) => {
+          if (error) {
+            console.error('Erro ao salvar o projeto no banco de dados.', error);
+            return res.status(500).send('Erro ao salvar o projeto no banco de dados.');
+          }
+          
+          return res.send('Projeto salvo com sucesso!');
         });
-    })
-    .catch(err => {
-      console.error('Erro ao se conectar ao banco de dados:', err);
-      res.status(500).send('Erro ao se conectar ao banco de dados.');
-    });
+      } catch (error) {
+        console.error('Erro ao salvar o projeto no banco de dados.', error);
+        return res.status(500).send('Erro ao salvar o projeto no banco de dados.');
+      }
+    }
+  });
 });
 
-app.post('/mudar-info', function (req, res) {
-  const usertag = req.query.usertag;
 
+app.post('/mudar-info', function (req, res) {
+
+  const usertag = req.query.usertag;
   const usuchg = req.body.usuchg;
   const emailchg = req.body.emailchg;
   const senchg = req.body.senchg;
@@ -149,11 +156,11 @@ app.post('/mudar-info', function (req, res) {
     params.push(usuchg);
   }
   if (emailchg) {
-    sql += ", email = ?";
+    sql += " email = ?";
     params.push(emailchg);
   }
   if (senchg) {
-    sql += ", senha = ?";
+    sql += " senha = ?";
     params.push(senchg);
   }
   if (!usuchg && !emailchg && !senchg) {
@@ -163,22 +170,10 @@ app.post('/mudar-info', function (req, res) {
 
   sql += " WHERE nicktag = ?";
   params.push(usertag);
+ 
+      const result = pool.query(sql, params);
 
-  pool.getConnection()
-    .then(conn => {
-      return conn.query(sql, params);
-      conn.release();
-    })
-    .then(result => {
-      if (result.affectedRows > 0) {
-        res.send('Informação atualizada com sucesso!');
-      } else {
-        res.status(400).send('Usuário não encontrado.');
-      }
-    })
-    .catch(error => {
-      res.status(500).send('Erro ao atualizar informações no banco de dados.');
-    });
+      res.send('Informação atualizada com sucesso!');
 });
 
 app.post('/verificar-login', function (req, res) {
@@ -226,16 +221,20 @@ app.get('/carregar-projetos', async function (req, res) {
   const usertag = req.query.usertag;
   try {
     const projetos = [];
-    const conn = await pool.getConnection();
-    const result = await conn.query("SELECT nome FROM projetos WHERE criador = ? UNION SELECT projetos.nome FROM projetos INNER JOIN membros ON projetos.projtag = membros.projtag WHERE membros.usertag = ?", [usertag, usertag]);
-    
-    result.forEach(row => {
-      projetos.push(row.nome);
-    });
+    pool.query("SELECT nome FROM projetos WHERE criador = ? UNION SELECT projetos.nome FROM projetos INNER JOIN membros ON projetos.projtag = membros.projtag WHERE membros.usertag = ?", [usertag, usertag], (error, result) => {
+      if (error) {
+        console.error('Erro ao consultar o banco de dados.', error);
+        return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+      }
+      
+      result.forEach(row => {
+        projetos.push(row.nome);
+      });
 
-    res.send(projetos);
-    conn.release();
+      res.send(projetos);
+    });
   } catch (error) {
+    console.error('Erro ao buscar os projetos no banco de dados.', error);
     res.status(500).send('Erro ao buscar os projetos no banco de dados.');
   }
 });
@@ -245,7 +244,6 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   const usertag = req.query.usertag;
 
   try {
-    const conn = await pool.getConnection();
     const result = await conn.query("SELECT projtag FROM notificacoes WHERE usertag = ?", [usertag]);
     
     const results = await Promise.all(result.map(row => {
@@ -270,8 +268,11 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     const prj = req.body.prj;
     const usertag = req.query.usertag;
     try {
-      const conn = await pool.getConnection();
-      const result = await conn.query('SELECT nome, descricao, projtag, criador FROM projetos WHERE nome = ?', [prj]);
+      pool.query('SELECT nome, descricao, projtag, criador FROM projetos WHERE nome = ?', [prj], (error, result) => {
+        if (error) {
+          console.error('Erro ao consultar o banco de dados.', error);
+          return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+        }
   
       const nomeproj = result[0].nome;
       const descproj = result[0].descricao;
@@ -284,8 +285,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       }
   
       res.json({ nomeproj, descproj, projtag, iscriador });
-  
-      conn.release();
+    })
     } catch (error) {
       res.status(500).send('Erro ao salvar o texto no banco de dados.');
     }
@@ -512,26 +512,33 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     });
     
       
-      app.post('/dados-tarefas', function(req, res) {
-        pool.getConnection()
-          .then(conn => {
-            conn.query('SELECT tarefas_conc, tarefas_pend, tarefas_exc FROM projetos WHERE projtag = ?', [projtag])
-              .then(result => {
-                const data = result.map(row => {
-                  return {
-                    tarefas_conc: row.tarefas_conc,
-                    tarefas_pend: row.tarefas_pend
-                  }
-                });
-                res.json(data);
-                conn.release();
-              })
-              .catch(error => {
-                console.log(error);
-                res.sendStatus(500);
-              });
-          });
+    app.post('/dados-tarefas', async function (req, res) {
+      const projtag = req.body.projtag;
+    
+      try {
+        pool.query('SELECT tarefas_conc, tarefas_pend, tarefas_exc FROM projetos WHERE projtag = ?', [projtag], function(error, result) {
+          if (error) {
+            console.log(error);
+            res.sendStatus(500);
+            return;
+          }
+        
+        const data = result.map(row => {
+          return {
+            tarefas_conc: row.tarefas_conc,
+            tarefas_pend: row.tarefas_pend,
+            tarefas_exc: row.tarefas_exc
+          };
+        });
+    
+        res.json(data);
       });
+      } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+      }
+    });
+    
 
       app.post('/finalizar-projeto', function(req, res) {
         pool.getConnection()
@@ -893,14 +900,7 @@ app.post('/get-anexos', function(req, res) {
 app.post('/get-arqproj', async function(req, res) {
   const usertag = req.query.usertag;
   try {
-    pool.getConnection(function(err, conn) {
-      if (err) {
-        console.log(err);
-        res.sendStatus(500);
-        return;
-      }
-
-      conn.query('SELECT nome FROM projetos WHERE arqcriador = ?', [usertag], function(error, result) {
+      pool.query('SELECT nome FROM projetos WHERE arqcriador = ?', [usertag], function(error, result) {
         if (error) {
           console.log(error);
           res.sendStatus(500);
@@ -913,9 +913,7 @@ app.post('/get-arqproj', async function(req, res) {
           };
         });
         res.json(data);
-        conn.release();
       });
-    });
   } catch (error) {
     console.log(error);
     res.sendStatus(500);
@@ -926,10 +924,13 @@ app.post('/get-arqproj', async function(req, res) {
 app.post('/get-infoarqproj', function(req, res) {
   const data2 = req.body.selectext;
   nometarefa = data2
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT nome, descricao, arqprojtag, log FROM projetos WHERE nome = ?', [data2])
-        .then(result => {
+  try{
+      pool.query('SELECT nome, descricao, arqprojtag, log FROM projetos WHERE nome = ?', [data2], function(error, result) {
+        if (error) {
+          console.log(error);
+          res.sendStatus(500);
+          return;
+        }
           const data = result.map(row => {
             return {
               nome: row.nome,
@@ -940,44 +941,48 @@ app.post('/get-infoarqproj', function(req, res) {
            
           });
           res.json(data);
-          conn.release();
-        })
-        .catch(error => {
+        });
+      }
+        catch(error) {
           console.log(error);
           res.sendStatus(500);
-        });
-    });
+        }
 });
 
 app.post('/get-arqtarefas', function(req, res) {
   const arqproj = req.body.projtag
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ?', [arqproj])
-        .then(result => {
+  try{
+      conn.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ?', [arqproj], function(error, result) {
+        if (error) {
+          console.log(error);
+          res.sendStatus(500);
+          return;
+        }
           const data2 = result.map(row => {
             return {
               tarefa: row.nome_tarefa
             }
           });
           res.json(data2);
-          conn.release();
         })
-        .catch(error => {
+        }
+        catch(error) {
           console.log(error);
           res.sendStatus(500);
-        });
-    });
+        }
 });
 
 app.post('/get-infoarqtar', function(req, res) {
   const projtag = req.body.projtag;
   const data2 = req.body.selectext;
   nometarefa = data2
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT nome_tarefa, desc_tarefa, criador, IFNULL(code, "") AS code FROM tarefas WHERE nome_tarefa = ? AND tag = ?', [data2, projtag])
-        .then(result => {
+  try{
+      conn.query('SELECT nome_tarefa, desc_tarefa, criador, IFNULL(code, "") AS code FROM tarefas WHERE nome_tarefa = ? AND tag = ?', [data2, projtag], function(error, result) {
+        if (error) {
+          console.log(error);
+          res.sendStatus(500);
+          return;
+        }
           const data = result.map(row => {
             return {
               tarefa: row.nome_tarefa,
@@ -986,32 +991,29 @@ app.post('/get-infoarqtar', function(req, res) {
             }
           });
           res.json(data);
-          conn.release();
         })
-        .catch(error => {
+      }
+        catch(error){
           console.log(error);
           res.sendStatus(500);
-        });
+        }
     });
-});
 
 
 app.post('/get-log', function(req, res) {
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag])
-        .then(result => {
+  try{
+      conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], function(error, result) {
+
           const data = result.map(row => {
             return {
               log: row.log
             }
           });
           res.json(data);
-          conn.release();
-        })
-        .catch(error => {
+        });
+        }
+        catch(error){
           console.log(error);
           res.sendStatus(500);
-        });
-    });
+        };
 });
