@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Projeto</title>
+    <title>PROJETO</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;900&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -65,7 +65,7 @@
 			<nav>
 			  <ul>
 
-			  <p id="um" style="cursor: pointer; font-size: 18px;" onclick="showone()">INFORMAÇÕES</p>
+			  <p  hidden id="um" style="cursor: pointer; font-size: 18px;" onclick="showone()">INFORMAÇÕES</p>
 			  <p  id="dois" style="cursor: pointer; font-size: 18px;" onclick="showtrfs()">TAREFAS</p>
 			  <div hidden id="trfs" style="opacity: 0.6;">
 			    <p id="tres" style="cursor: pointer; font-size: 18px;" onclick="showtwo()">GERENCIAR TAREFAS</p>
@@ -124,6 +124,7 @@
 			document.getElementById("divSeven").hidden=true;
 		}
 		function showfour(){
+			gerMembros();
 			document.getElementById("trfs").hidden=true;
 			document.getElementById("um").style.textDecoration = "none";
 			document.getElementById("dois").style.textDecoration = "none";
@@ -142,6 +143,7 @@
 			document.getElementById("divSeven").hidden=true;
 		}
 		function showseven(){
+			gerTarefasArq();
 			document.getElementById("um").style.textDecoration = "none";
 			document.getElementById("dois").style.textDecoration = "underline";
 			document.getElementById("tres").style.textDecoration = "none";
@@ -159,6 +161,7 @@
 			document.getElementById("divSeven").hidden=false;
 		}
 		function showsix(){
+			gerLog();
 			document.getElementById("trfs").hidden=true;
 			document.getElementById("um").style.textDecoration = "none";
 			document.getElementById("dois").style.textDecoration = "none";
@@ -177,6 +180,7 @@
 			document.getElementById("divSeven").hidden=true;
 		}
 		function showtwo(){
+			gerTarefas()
 			document.getElementById("um").style.textDecoration = "none";
 			document.getElementById("dois").style.textDecoration = "underline";
 			document.getElementById("tres").style.textDecoration = "underline";
@@ -235,7 +239,7 @@
 		}
 		</script>
 
-		<div class="animate__animated animate__fadeIn" hidden id="divOne" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+		<div hidden class="animate__animated animate__fadeIn" hidden id="divOne" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 			
 			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
 			<form>
@@ -348,7 +352,7 @@
 
 		<div class="animate__animated animate__fadeIn" hidden id="divSeven" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 			<br><br><br><br><br><br><br>
-			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
+			<a class="sair" style="margin-left: 50%;" href="index4.html">&times;</a>
 			<form>
 				<p style="font-size: 18px;">TAREFAS</p>
 		
@@ -383,7 +387,7 @@
 	const link = document.getElementById('linkanexo').value;
 	const texto = document.getElementById('nomeanexo').value;
 	const xhr = new XMLHttpRequest();
-		xhr.open('POST', '/add-anexo');
+		xhr.open('POST', '/add-anexo?projtag=' + localStorage.getItem('projtag'));
 		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		xhr.onload = function() {
 		  if (xhr.status === 200) {
@@ -413,7 +417,7 @@
 
 	function addmembro2() {
 		const xhr = new XMLHttpRequest();
-		xhr.open('POST', '/add-membro');
+		xhr.open('POST', '/add-membro?projtag=' + localStorage.getItem('projtag'));
 		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		xhr.onload = function() {
 		  if (xhr.status === 200) {
@@ -447,7 +451,7 @@
 
 	function remuvo2(){
 		const xhr = new XMLHttpRequest();
-		xhr.open('POST', '/rmv-membro');
+		xhr.open('POST', '/rmv-membro?projtag=' + localStorage.getItem('projtag'));
 		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		xhr.onload = function() {
 		  if (xhr.status === 200) {
@@ -464,7 +468,7 @@
 	}
 
 	function gerMembros(){
-	fetch('/get-membros', {
+	fetch('/get-membros?projtag=' + localStorage.getItem('projtag'), {
 		method: 'POST',
 	  })
 	  .then(response => {
@@ -485,7 +489,7 @@
 	}
 
 	function gerLog(){
-	  fetch('/get-log', {
+	  fetch('/get-log?projtag=' + localStorage.getItem('projtag'), {
 		method: 'POST',
 	  })
 	  .then(response => {
@@ -501,7 +505,10 @@
 	}
 
 	function gerTarefas(){
-	fetch('/get-tarefas', {
+
+		document.querySelector('select[name="Tarefas"]').innerHTML = '';
+
+	fetch('/get-tarefas?projtag=' + localStorage.getItem('projtag'), {
 		method: 'POST',
 	  })
 		.then(response => {
@@ -509,7 +516,8 @@
 		})
 		.then(data => {
 		  data.forEach(tarefa => {
-
+			
+			
 		  // seleciona o elemento select
           const select = document.querySelector('select[name="Tarefas"]');
 
@@ -528,7 +536,8 @@
 	}
 
 	function gerTarefasArq(){
-		fetch('/get-tarefasarq', {
+		document.querySelector('select[id="TarefasArq"]').innerHTML = '';
+		fetch('/get-tarefasarq?projtag=' + localStorage.getItem('projtag'), {
 			method: 'POST',
 		  })
 			.then(response => {
@@ -552,16 +561,14 @@
 				const select = document.getElementById("TarefasArq");
 				const selectedOption = select.options[select.selectedIndex];
 				const selectext = selectedOption.textContent;
-				console.log(selectext)
 	  
-				  fetch('/get-infoarqtar', {
+				  fetch('/get-infoarqtar?projtag=' + localStorage.getItem('projtag'), {
 					  method: 'POST',
 					  headers: {'Content-Type': 'application/json'},
 					  body: JSON.stringify({ selectext })
 					  }).then(response => {
 						return response.json();
 					  }).then(data => {
-						console.log(data);
 					  document.getElementById('NomeTar').innerHTML = data[0].tarefa
 					  document.getElementById('DescTar').innerHTML = data[0].desctarefa
 					  document.getElementById('CodTar').innerHTML = data[0].code
@@ -585,32 +592,43 @@
 
 <script>
 
-	let codigo = ""
+	fetch('/dados-tarefas?projtag=' + localStorage.getItem('projtag'), {
+		method: 'POST'
+	    }).then(response => {
+		  return response.json();
+		  
+		}).then(data => {
 
-	function alterarprojeto() {
-		if (confirm("Confirmar alterações?")) {
-			  const xhr = new XMLHttpRequest();
-			  xhr.open('POST', '/alterar-projeto');
-			  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-			  xhr.onload = function() {
-				if (xhr.status === 200) {
-				  alert("Alterações feitas com sucesso!");
-				} else {
-				  alert('Erro ao realizar alterações.');
-				}
-			  };
-			  const dados = 'nome=' + encodeURIComponent(document.getElementById('newnome').value) +
-			  '&descricao=' + encodeURIComponent(document.getElementById('newdesc').value)
-				  
-			  xhr.send(dados);
-			  setTimeout(function() {
-				location.replace("index3.html");
-			  }, 300); }
-			 }
+	var tarC = data[0].tarefas_conc
+	var tarP = data[0].tarefas_pend
+	var datachart = {
+        labels: ["Completas", "Pendentes"],
+        datasets: [
+          {
+            data: [tarC, tarP],
+            backgroundColor: ["#1c1030", "#ffffff"],
+            hoverBackgroundColor: ["#1C1F22", "#1C1F22"],
+          },
+        ],
+      }
+
+      var options = {
+        responsive: false,
+        maintainAspectRatio: false,
+      }
+
+      var myDoughnutChart = new Chart(document.getElementById("progresso"), {
+        type: "doughnut",
+        data: datachart,
+        options: options,
+      })
+	})
+
+	let codigo = ""
 
 function cadtarefa(){
 	const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/cad-tarefa');
+		  xhr.open('POST', '/cad-tarefa?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -635,7 +653,7 @@ function finalizartarefa() {
     const selectext = selectedOption.textContent;
 
 		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/finalizar-tarefa');
+		  xhr.open('POST', '/finalizar-tarefa?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -665,7 +683,7 @@ function escolhertarefa() {
     const selectedOption = select.options[select.selectedIndex];
     const selectext = selectedOption.textContent;
 
-	fetch('/escolher-tarefa', {
+	fetch('/escolher-tarefa?projtag=' + localStorage.getItem('projtag'), {
 		method: 'POST',
         headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify({ selectext })
@@ -680,7 +698,7 @@ function escolhertarefa() {
 		  
 		})
 
-		fetch('/get-anexos', {
+		fetch('/get-anexos?projtag=' + localStorage.getItem('projtag'), {
 		method: 'POST',
 	  })
 		.then(response => {
@@ -712,7 +730,7 @@ function escolhertarefa() {
 function salvartarefa() {
 	if (confirm("Confirmar alterações?")) {
 		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/salvar-tarefa');
+		  xhr.open('POST', '/salvar-tarefa?projtag=' + localStorage.getItem('projtag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -737,7 +755,7 @@ function excluirtarefa() {
     const selectext = selectedOption.textContent;
 
 		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/excluir-tarefa');
+		  xhr.open('POST', '/excluir-tarefa?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -757,7 +775,7 @@ function excluirtarefa() {
 function terminarprojeto() {
 	if (confirm("Tem certeza que deseja finalizar o projeto?")) {
 		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/finalizar-projeto');
+		  xhr.open('POST', '/finalizar-projeto?projtag=' + localStorage.getItem('projtag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -775,7 +793,7 @@ function terminarprojeto() {
 function sairprojeto() {
 	if (confirm("Tem certeza que deseja sair do projeto?")) {
 		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/sair-projeto');
+		  xhr.open('POST', '/sair-projeto?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -792,6 +810,13 @@ function sairprojeto() {
 </script>
 
 <script>
+	    if (localStorage.getItem('iscriador') == true) {
+		  document.getElementById("sair").setAttribute('hidden', 'true');
+		}
+		else{
+		  document.getElementById("terminar").setAttribute('hidden', 'true');
+		}
+
 		if (localStorage.getItem('islogged') == 1) {
 		  document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
 		  localStorage.setItem('usertag', data.username);
@@ -801,35 +826,4 @@ function sairprojeto() {
 			location.replace("index.html");
 		  }, 100);
 		}
-
-	fetch('/dados-tarefas', {
-		method: 'POST'
-	    }).then(response => {
-		  return response.json();
-		}).then(data => {
-
-	var tarC = data[0].tarefas_conc
-	var tarP = data[0].tarefas_pend
-	var datachart = {
-        labels: ["Completas", "Pendentes"],
-        datasets: [
-          {
-            data: [tarC, tarP],
-            backgroundColor: ["#000000", "#ffffff"],
-            hoverBackgroundColor: ["#1C1F22", "#1C1F22"],
-          },
-        ],
-      }
-
-      var options = {
-        responsive: false,
-        maintainAspectRatio: false,
-      }
-
-      var myDoughnutChart = new Chart(document.getElementById("progresso"), {
-        type: "doughnut",
-        data: datachart,
-        options: options,
-      })
-	})
 </script>
