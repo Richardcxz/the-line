@@ -308,11 +308,11 @@ app.get('/carregar-solicitacoes', async function(req, res) {
 
   app.post('/cad-tarefa', async function (req, res) {
     try {
-      const tarnome = req.body.tarnome;
       const tardesc = req.body.tardesc;
       const tagtarefa = req.body.tagtarefa;
       const projtag = req.query.projtag;
       const usertag = req.query.usertag;
+      const tarnome = req.body.tarnome + "#" + tagtarefa;
 
       pool.query('SELECT tarefas_pend, log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
         if (error) {
@@ -390,11 +390,14 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     });    
     
     app.post('/escolher-tarefa', async (req, res) => {
-      const data2 = req.body.selectext;
-      nometarefa = data2;
+      const nometarefa = req.query.selectext;
     
       try {
-        const result = await pool.query('SELECT nome_tarefa, desc_tarefa, criador, code FROM tarefas WHERE nome_tarefa = ?', [data2]);
+        pool.query('SELECT nome_tarefa, desc_tarefa, criador, code FROM tarefas WHERE nome_tarefa = ?', [nometarefa], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
         
         const data = result.map(row => {
           return {
@@ -406,7 +409,9 @@ app.get('/carregar-solicitacoes', async function(req, res) {
         });
         
         res.json(data);
-      } catch (error) {
+      } 
+        )}
+        catch (error) {
         console.log(error);
         res.sendStatus(500);
       }
@@ -416,21 +421,29 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const code = req.body.code;
       const nometrf = req.body.nometrf;
       const projtag = req.query.projtag;
+      const usertag = req.query.usertag;
     
       try {
-        const logResult = await pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
+        pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
+
         let logText = '';
         
-        if (logResult.length > 0 && logResult[0].log) {
-          logText = logResult[0].log + '\n';
+        if (result.length > 0 && result[0].log) {
+          logText = result[0].log + '\n';
         }
         logText += `Usuário #${usertag} alterou detalhes da tarefa ${nometrf}`;
         
-        await pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [logText, projtag]);
-        await pool.query('UPDATE tarefas SET code = ? WHERE nome_tarefa = ?', [code, nometrf]);
+        pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [logText, projtag]);
+        pool.query('UPDATE tarefas SET code = ? WHERE nome_tarefa = ?', [code, nometrf]);
     
         res.send('Tarefa salva com sucesso!');
-      } catch (error) {
+      } 
+        )}
+      catch (error) {
         res.status(500).send('Erro ao salvar a tarefa.');
       }
     });    
@@ -680,73 +693,103 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       }
     });    
 
-
     app.post('/add-anexo', async function(req, res) {
       const projtag = req.query.projtag;
+      const usertag = req.query.usertag;
       const link = req.body.link;
       const texto = req.body.texto;
+      const nometarefa = req.query.selectext;
     
       const novaLinha = `<a href="${link}">${texto}</a>`;
     
       try {
-        const logResult = await pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
-        let log = logResult[0].log;
+        pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
     
-        if (log === undefined || log === null || log === '') {
-          log = `Usuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`;
-        } else {
-          log += `\nUsuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`;
-        }
+          let log = result[0].log;
     
-        await pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag]);
+          if (log === undefined || log === null || log === '') {
+            log = `Usuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`;
+          } else {
+            log += `\nUsuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`;
+          }
     
-        const anexosResult = await pool.query('SELECT anexos FROM tarefas WHERE nome_tarefa = ?', [nometarefa]);
-        let textHtml = anexosResult[0].anexos;
+          pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag], (error, result) => {
+            if (error) {
+              console.error('Erro ao atualizar o banco de dados.', error);
+              return res.status(500).send('Erro ao atualizar os projetos no banco de dados.');
+            }
     
-        if (textHtml === undefined || textHtml === null || textHtml === '') {
-          textHtml = novaLinha;
-        } else {
-          textHtml += `|${novaLinha}`;
-        }
+            pool.query('SELECT anexos FROM tarefas WHERE nome_tarefa = ?', [nometarefa], (error, result) => {
+              if (error) {
+                console.error('Erro ao consultar o banco de dados.', error);
+                return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+              }
     
-        await pool.query('UPDATE tarefas SET anexos = ? WHERE nome_tarefa = ?', [textHtml, nometarefa]);
+              if (result[0] && result[0].anexos) {
+                let textHtml = result[0].anexos;
     
-        res.send('Link adicionado com sucesso!');
+                if (textHtml === undefined || textHtml === null || textHtml === '') {
+                  textHtml = novaLinha;
+                } else {
+                  textHtml += `|${novaLinha}`;
+                }
+    
+                pool.query('UPDATE tarefas SET anexos = ? WHERE nome_tarefa = ?', [textHtml, nometarefa], (error, result) => {
+                  if (error) {
+                    console.error('Erro ao atualizar o banco de dados.', error);
+                    return res.status(500).send('Erro ao atualizar as tarefas no banco de dados.');
+                  }
+    
+                  res.send('Link adicionado com sucesso!');
+                });
+              } else {
+                res.status(404).send('Tarefa não encontrada.');
+              }
+            });
+          });
+        });
       } catch (error) {
         console.error('Erro:', error);
         res.status(500).send('Ocorreu um erro ao adicionar o anexo.');
       }
     });    
 
-
     app.post('/get-anexos', async (req, res) => {
       const projtag = req.query.projtag;
-      const nometarefa = req.body.nometarefa;
-    
+      const nometarefa = req.query.selectext;
+
       try {
-        const result = await pool.query('SELECT anexos FROM tarefas WHERE projtag = ? AND nome_tarefa = ?', [projtag, nometarefa]);
+        pool.query('SELECT anexos FROM tarefas WHERE projtag = ? AND nome_tarefa = ?', [projtag, nometarefa], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
     
-        const data = [];
-        if (result.length > 0 && result[0].anexos !== null) {
-          const links = result[0].anexos.split('</a>');
-          links.forEach(link => {
-            if (link) {
-              const $ = cheerio.load(link);
-              const name = $('a').text();
-              const href = $('a').attr('href');
-              data.push({
-                link: href,
-                name: name
-              });
-            }
-          });
-        }
-    
-        res.json(data);
+          const data = [];
+          if (result.length > 0 && result[0].anexos !== null) {
+            const links = result[0].anexos.split('</a>');
+            links.forEach(link => {
+              if (link) {
+                const $ = cheerio.load(link);
+                const name = $('a').text();
+                const href = $('a').attr('href');
+                data.push({
+                  link: href,
+                  name: name
+                });
+              }
+            });
+          }
+          res.json(data);
+        });
       } catch (error) {
         res.status(500).json({ error: 'Erro ao obter anexos.' });
       }
-    });
+    });    
 
 app.post('/get-arqproj', async function(req, res) {
   const usertag = req.query.usertag;
