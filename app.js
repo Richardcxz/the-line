@@ -278,10 +278,10 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const descproj = result[0].descricao;
       const projtag = result[0].projtag;
   
-      let iscriador = "false";
+      let iscriador = "0";
   
       if (usertag == result[0].criador) {
-        iscriador = "true";
+      iscriador = "1";
       }
   
       res.json({ nomeproj, descproj, projtag, iscriador });
@@ -306,223 +306,213 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     }
   });  
 
-  app.post('/cad-tarefa', function(req, res) {
-    const tarnome = req.body.tarnome;
-    const tardesc = req.body.tardesc;
-    const tagtarefa = req.body.tagtarefa;
+  app.post('/cad-tarefa', async function (req, res) {
+    try {
+      const tarnome = req.body.tarnome;
+      const tardesc = req.body.tardesc;
+      const tagtarefa = req.body.tagtarefa;
+      const projtag = req.query.projtag;
+      const usertag = req.query.usertag;
+
+      pool.query('SELECT tarefas_pend, log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
+        if (error) {
+          console.error('Erro ao consultar o banco de dados.', error);
+          return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+        }
   
-    pool.getConnection()
-      .then(conn => {
-        const subquery = 'SELECT tarefas_pend + 1 AS new_tarefas_pend, log FROM projetos WHERE projtag = ?';
-        conn.query(subquery, [projtag])
-          .then(result => {
-            const newTarefasPend = result[0].new_tarefas_pend;
-            let logText = result[0].log;
-            if (logText) {
-              logText += '\nUsuário #' + usertag + ' criou a tarefa ' + tarnome;
-            } else {
-              logText = 'Usuário #' + usertag + ' criou a tarefa ' + tarnome;
-            }
-            conn.query('UPDATE projetos SET tarefas_pend = ?, log = ? WHERE projtag = ?', [newTarefasPend, logText, projtag])
-              .then(result => {
-                conn.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida) VALUES (?, ?, ?, ?, ?, 0, 0)", [tarnome, tardesc, tagtarefa, projtag, usertag])
-                  .then(result => {
-                    res.send('Tarefa salva com sucesso!');
-                  });
-              });
-          })
-          .finally(() => {
-            conn.release();
-          });
-      });
-  });
+      const newTarefasPend = result[0].tarefas_pend + 1;
+      let logText = result[0].log;
+  
+      if (logText) {
+        logText += '\nUsuário #' + usertag + ' criou a tarefa ' + tarnome;
+      } else {
+        logText = '\nUsuário #' + usertag + ' criou a tarefa ' + tarnome;
+      }
+  
+      pool.query('UPDATE projetos SET tarefas_pend = ?, log = ? WHERE projtag = ?', [newTarefasPend, logText, projtag]);
+  
+      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida) VALUES (?, ?, ?, ?, ?, 0, 0)", [tarnome, tardesc, tagtarefa, projtag, usertag]);
+  
+      res.send('Tarefa salva com sucesso!');
+    } 
+      )}
+      catch (error) {
+      console.error('Erro ao cadastrar tarefa:', error);
+      res.status(500).send('Erro ao cadastrar tarefa');
+    }
+  });  
 
-    app.post('/get-tarefas', function(req, res) {
-      pool.getConnection()
-        .then(conn => {
-          conn.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 0 AND excluida = 0', [projtag])
-            .then(result => {
-              const data = result.map(row => {
-                return {
-                  tarefa: row.nome_tarefa,
-                  desctarefa: row.desc_tarefa,
-                  criador: row.criador
-                }
-              });
-              res.json(data);
-              conn.release();
-            })
-            .catch(error => {
-              console.log(error);
-              res.sendStatus(500);
-            });
-        });
-    });
+  app.post('/get-tarefas', async (req, res) => {
+    const projtag = req.query.projtag;
+    try {
+      pool.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 0 AND excluida = 0',[projtag], (error, result) => {
+        if (error) {
+          console.error('Erro ao consultar o banco de dados.', error);
+          return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+        }
+  
+      const data = result.map(row => ({
+        tarefa: row.nome_tarefa,
+        desctarefa: row.desc_tarefa,
+        criador: row.criador
+      }));
+      res.json(data);
+    } 
+      )}
+    catch (error) {
+      console.error(error);
+      res.sendStatus(500);
+    }
+  });  
 
-    app.post('/get-tarefasarq', function(req, res) {
-      pool.getConnection()
-        .then(conn => {
-          conn.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 1 AND excluida = 0', [projtag])
-            .then(result => {
-              const data = result.map(row => {
-                return {
-                  tarefa: row.nome_tarefa,
-                  desctarefa: row.desc_tarefa,
-                  criador: row.criador
-                }
-              });
-              res.json(data);
-              conn.release();
-            })
-            .catch(error => {
-              console.log(error);
-              res.sendStatus(500);
-            });
-        });
-    });
+    app.post('/get-tarefasarq', async function (req, res) {
+      const projtag = req.query.projtag;
+      try {
+        pool.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 1 AND excluida = 0', [projtag], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
     
-    app.post('/escolher-tarefa', function(req, res) {
+        const data = result.map(row => ({
+          tarefa: row.nome_tarefa,
+          desctarefa: row.desc_tarefa,
+          criador: row.criador
+        }));
+    
+        res.json(data);
+      } 
+        )}
+      catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+      }
+    });    
+    
+    app.post('/escolher-tarefa', async (req, res) => {
       const data2 = req.body.selectext;
-      nometarefa = data2
-      pool.getConnection()
-        .then(conn => {
-          conn.query('SELECT nome_tarefa, desc_tarefa, criador, code FROM tarefas WHERE nome_tarefa = ?', [data2])
-            .then(result => {
-              const data = result.map(row => {
-                return {
-                  tarefa: row.nome_tarefa,
-                  desctarefa: row.desc_tarefa,
-                  criador: row.criador,
-                  code: row.code
-                }
-              });
-              res.json(data);
-              conn.release();
-            })
-            .catch(error => {
-              console.log(error);
-              res.sendStatus(500);
-            });
+      nometarefa = data2;
+    
+      try {
+        const result = await pool.query('SELECT nome_tarefa, desc_tarefa, criador, code FROM tarefas WHERE nome_tarefa = ?', [data2]);
+        
+        const data = result.map(row => {
+          return {
+            tarefa: row.nome_tarefa,
+            desctarefa: row.desc_tarefa,
+            criador: row.criador,
+            code: row.code
+          };
         });
-    });
+        
+        res.json(data);
+      } catch (error) {
+        console.log(error);
+        res.sendStatus(500);
+      }
+    });    
 
-    app.post('/salvar-tarefa', function(req, res) {
+    app.post('/salvar-tarefa', async function(req, res) {
       const code = req.body.code;
       const nometrf = req.body.nometrf;
+      const projtag = req.query.projtag;
     
-      pool.getConnection()
-        .then(conn => {
-          conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag])
-            .then(result => {
-              let logText = '';
-              if (result.length > 0 && result[0].log) {
-                logText = result[0].log + '\n';
-              }
-              logText += `Usuário #${usertag} alterou detalhes da tarefa ${nometrf}`;
+      try {
+        const logResult = await pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
+        let logText = '';
+        
+        if (logResult.length > 0 && logResult[0].log) {
+          logText = logResult[0].log + '\n';
+        }
+        logText += `Usuário #${usertag} alterou detalhes da tarefa ${nometrf}`;
+        
+        await pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [logText, projtag]);
+        await pool.query('UPDATE tarefas SET code = ? WHERE nome_tarefa = ?', [code, nometrf]);
     
-              conn.query('UPDATE projetos SET log = ? WHERE projtag = ?', [logText, projtag])
-                .then(result => {
-                  conn.query('UPDATE tarefas SET code = ? WHERE nome_tarefa = ?', [code, nometrf])
-                    .then(result => {
-                      res.send('Tarefa salva com sucesso!');
-                    });
-                });
-            })
-            .finally(() => {
-              conn.release();
-            });
-        });
-    });
+        res.send('Tarefa salva com sucesso!');
+      } catch (error) {
+        res.status(500).send('Erro ao salvar a tarefa.');
+      }
+    });    
     
 
     app.post('/excluir-tarefa', function(req, res) {
       const nometrf = req.body.nometrf;
-    
-      pool.getConnection()
-        .then(conn => {
-          // Subtrai 1 do valor de tarefas_pend e adiciona 1 a tarefas_exc
-          conn.query('UPDATE projetos SET tarefas_pend = tarefas_pend - 1, tarefas_exc = tarefas_exc + 1 WHERE projtag = ?', [projtag])
-            .then(result => {
-              conn.query('UPDATE tarefas SET excluida = 1 WHERE nome_tarefa = ?', [nometrf])
-              .then(result => {
-              
-              // Verifica se a coluna log está vazia ou não
-              conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag])
-                .then(result => {
-                  let log = result[0].log;
-                  if (log) {
-                    // Se a coluna log não estiver vazia, adiciona o texto na próxima linha
-                    log += '\nUsuário #' + usertag + ' excluiu a tarefa ' + nometrf;
-                  } else {
-                    // Se a coluna log estiver vazia, adiciona o texto na primeira linha
-                    log = 'Usuário #' + usertag + ' excluiu a tarefa ' + nometrf;
-                  }
-                  // Atualiza a coluna log com o texto modificado
-                  conn.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag])
-                    .then(result => {
-                      // Exclui a tarefa normalmente
-                      conn.query('DELETE FROM tarefas WHERE nome_tarefa = ?', [nometrf])
-                        .then(result => {
-                          res.send('Tarefa excluída com sucesso!');
-                        })
-                        .finally(() => {
-                          conn.release();
-                        });
-                    });
-                });
-              });
-            });
-        });
-    });    
-      
-    app.post('/finalizar-tarefa', function(req, res) {
-      const nometrf = req.body.nometrf;
-    
-      pool.getConnection()
-        .then(conn => {
-          // Subtrai 1 do valor de tarefas_pend
-          conn.query('UPDATE projetos SET tarefas_pend = tarefas_pend - 1, tarefas_conc = tarefas_conc + 1 WHERE projtag = ?', [projtag])
-            .then(result => {
-              conn.query('UPDATE tarefas SET finalizada = 1 WHERE nome_tarefa = ?', [nometrf])
-            .then(result => {
-              // Atualiza o log com a informação de que a tarefa foi finalizada
-              conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag])
-                .then(result => {
-                  const log = result[0].log;
-                  const message = `Usuário #${usertag} finalizou a tarefa ${nometrf}`;
-    
-                  if (log) {
-                    conn.query('UPDATE projetos SET log = CONCAT(log, "\n", ?) WHERE projtag = ?', [message, projtag])
-                      .then(result => {
-                        res.send('Tarefa finalizada com sucesso!');
-                      });
-                  } else {
-                    conn.query('UPDATE projetos SET log = ? WHERE projtag = ?', [message, projtag])
-                      .then(result => {
-                        res.send('Tarefa finalizada com sucesso!');
-                      });
-                  }
-                });
-              });
-            })
-            .finally(() => {
-              conn.release();
-            });
-        });
-    });
-    
-      
-    app.post('/dados-tarefas', async function (req, res) {
-      const projtag = req.body.projtag;
+      const projtag = req.query.projtag;
+      const usertag = req.query.usertag;
     
       try {
-        pool.query('SELECT tarefas_conc, tarefas_pend, tarefas_exc FROM projetos WHERE projtag = ?', [projtag], function(error, result) {
+
+        pool.query('UPDATE projetos SET tarefas_pend = tarefas_pend - 1, tarefas_exc = tarefas_exc + 1 WHERE projtag = ?', [projtag]);
+    
+        pool.query('UPDATE tarefas SET excluida = 1 WHERE nome_tarefa = ?', [nometrf]);
+
+        pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
           if (error) {
-            console.log(error);
-            res.sendStatus(500);
-            return;
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
           }
-        
+        let log = result[0].log || '';
+    
+        log += '\nUsuário #' + usertag + ' excluiu a tarefa ' + nometrf;
+
+        pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag]);
+    
+        pool.query('DELETE FROM tarefas WHERE nome_tarefa = ?', [nometrf]);
+    
+        res.send('Tarefa excluída com sucesso!');        
+      })
+      } catch (error) {
+        console.error('Erro ao excluir tarefa:', error);
+        res.status(500).send('Ocorreu um erro ao excluir a tarefa.');
+      }
+    });
+    
+    app.post('/finalizar-projeto', function(req, res) {
+          const projtag = req.query.projtag;
+          const usertag = req.query.usertag;
+          pool.query('UPDATE projetos SET criador = 0000, projtag = 0000, arqcriador = ?, arqprojtag = ? WHERE projtag = ?', [usertag, projtag, projtag])
+          pool.query('DELETE FROM membros WHERE projtag = ?', [projtag])
+          res.send('Projeto finalizado com sucesso!');
+    });
+      
+    app.post('/finalizar-tarefa', async function(req, res) {
+      try {
+        const nometrf = req.body.nometrf;
+        const projtag = req.query.projtag;
+        const usertag = req.query.usertag;
+    
+        pool.query('UPDATE projetos SET tarefas_pend = tarefas_pend - 1, tarefas_conc = tarefas_conc + 1 WHERE projtag = ?', [projtag]);
+        pool.query('UPDATE tarefas SET finalizada = 1 WHERE nome_tarefa = ?', [nometrf]);
+    
+        const logResult = pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
+        const log = logResult.log;
+        const message = `Usuário #${usertag} finalizou a tarefa ${nometrf}`;
+    
+        if (log) {
+          pool.query('UPDATE projetos SET log = CONCAT(log, "\n", ?) WHERE projtag = ?', [message, projtag]);
+        } else {
+          pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [message, projtag]);
+        }
+    
+        res.send('Tarefa finalizada com sucesso!');
+      } catch (error) {
+        console.error('Erro ao finalizar a tarefa:', error);
+        res.status(500).send('Erro ao finalizar a tarefa.');
+      }
+    });
+    
+    
+      
+    app.post('/dados-tarefas', function (req, res) {
+      const projtag = req.query.projtag;
+    
+      pool.query('SELECT tarefas_conc, tarefas_pend, tarefas_exc FROM projetos WHERE projtag = ?', [projtag], function(error, result) {
+        if (error) {
+          console.log(error);
+          return res.sendStatus(500);
+        }
+    
         const data = result.map(row => {
           return {
             tarefas_conc: row.tarefas_conc,
@@ -533,369 +523,230 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     
         res.json(data);
       });
-      } catch (error) {
-        console.log(error);
-        res.sendStatus(500);
-      }
     });
     
-
-      app.post('/finalizar-projeto', function(req, res) {
-        pool.getConnection()
-          .then(conn => {
-            conn.query('UPDATE projetos SET criador = 0000, projtag = 0000, arqcriador = ?, arqprojtag = ? WHERE projtag = ?', [usertag, projtag, projtag])
-                  .then(result => {
-                    conn.query('DELETE FROM membros WHERE projtag = ?', [projtag])
-                  .then(result => {
-                  })
-                  })
-                  .finally(() => {
-                    conn.release();
-                  });
-          });
-      });
-
-      app.post('/alterar-projeto', function(req, res) {
-        const nome = req.body.nome;
-        const descricao = req.body.descricao;
       
-        let sql = "UPDATE projetos SET ";
-        if (nome != "") {
-          sql += " nome = '" + nome + "'";
-          if (descricao != "") {
-            sql += ", descricao = '" + descricao + "'";
+    app.post('/aceitar-convite', async function(req, res) {
+      const usertag = req.query.usertag;
+      const nomeprojeto = req.body.nomeproj;
+      var projtag = 0;
+    
+      try {
+        const result1 = await pool.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto]);
+        projtag = result1[0].projtag;
+    
+        await pool.query('INSERT INTO membros (projtag, usertag) VALUES (?, ?)', [projtag, usertag]);
+        await pool.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag]);
+    
+        res.send('Adicionado com sucesso!');
+      } catch (error) {
+        console.error('Erro:', error.message);
+        res.status(500).send(error.message);
+      }
+    });       
+      
+    app.post('/recusar-convite', async function(req, res) {
+      const usertag = req.query.usertag;
+      const nomeprojeto = req.body.nomeproj;
+      var projtag = 0;
+      var logText;
+    
+      try {
+        const result = await pool.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto]);
+        projtag = result[0].projtag;
+    
+        await pool.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag]);
+    
+        res.send('Recusado com sucesso!');
+      } catch (error) {
+        console.error('Erro:', error.message);
+        res.status(500).send(error.message);
+      }
+    });    
+    
+    app.post('/add-membro', async function(req, res) {
+      const projtag = req.query.projtag;
+      const mbr1 = req.body.mbr1;
+    
+      try {
+        pool.query('SELECT * FROM notificacoes WHERE projtag = ? AND usertag = ?',[projtag, mbr1], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
           }
+        if (result.length > 0) {
+          res.status(500).send('Erro: essa combinação de informações já existe na tabela!');
+        } else {
+          pool.query("INSERT INTO notificacoes (projtag, usertag) VALUES (?, ?)", [projtag, mbr1]);
+    
+          pool.query("SELECT log FROM projetos WHERE projtag = ?", [projtag]);
+    
+          res.send('Solicitação enviada com sucesso!');
         }
-        if (nome == "" && descricao != "") {
-          sql += " descricao = '" + descricao + "'";
-        }
-        sql += " WHERE projtag = '" + projtag + "'";
-      
-        if (!nome && !descricao) {
-          res.status(400).send('Nenhum dado foi fornecido para atualização.');
+      })
+      } catch (error) {
+        console.error('Erro:', error);
+        res.status(500).send('Ocorreu um erro ao processar a solicitação.');
+      }
+    });    
+
+    app.post('/rmv-membro', async function(req, res) {
+      const projtag = req.query.projtag;
+      const mbr1 = req.body.mbr2;
+    
+      try {
+        pool.query('SELECT nick FROM contas WHERE nicktag = ?', [mbr1], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
+        
+        if (result.length === 0) {
+          res.status(500).send('Usuário não encontrado!');
           return;
         }
-      
-        pool.getConnection()
-          .then(conn => {
-            conn.query(sql)
-              .then(result => {
-                if (result.affectedRows > 0) {
-                  let logMsg = '';
-                  conn.query("SELECT log FROM projetos WHERE projtag = ?", [projtag])
-                    .then(result => {
-                      let log = result[0].log;
-                      if (!log) {
-                        logMsg = "Usuário #" + usertag + " alterou informações do projeto.";
-                      } else {
-                        logMsg = log + "\nUsuário #" + usertag + " alterou informações do projeto.";
-                      }
-                      conn.query("UPDATE projetos SET log = ? WHERE projtag = ?", [logMsg, projtag])
-                        .then(result => {
-                          res.send('Informação atualizada com sucesso!');
-                          conn.release();
-                        })
-                        .catch(error => {
-                          res.status(500).send('Erro ao atualizar informações no banco de dados.');
-                          conn.release();
-                        });
-                    })
-                    .catch(error => {
-                      res.status(500).send('Erro ao atualizar informações no banco de dados.');
-                      conn.release();
-                    });
-                } else {
-                  res.status(400).send('Projeto não encontrado.');
-                  conn.release();
-                }
-              })
-              .catch(error => {
-                res.status(500).send('Erro ao atualizar informações no banco de dados.');
-                conn.release();
-              });
-          })
-          .catch(error => {
-            res.status(500).send('Erro ao se conectar ao banco de dados.');
-          });
-      });    
-      
-      app.post('/aceitar-convite', function(req, res) {
-        const usertag = req.query.usertag;
-        const nomeprojeto = req.body.nomeproj;
-        var projtag = 0;
-        var logText;
-      
-        pool.getConnection().then(conn => {
-          conn.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto])
-            .then(result => {
-              projtag = result[0].projtag;
-            })
-            .then(result => {
-              return conn.query('INSERT INTO membros (projtag, usertag) VALUES (?, ?)', [projtag, usertag]);
-            })
-            .then(result => {
-              return conn.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag]);
-            })
-            .then(result => {
-              res.send('Adicionado com sucesso!');
-            })
-            .catch(error => {
-              console.error('Erro:', error.message);
-              res.status(500).send(error.message);
-            })
-            .finally(() => {
-              conn.release();
-            });
-        });
-      });    
-      
-      app.post('/recusar-convite', function(req, res) {
-        const usertag = req.query.usertag;
-        const nomeprojeto = req.body.nomeproj;
-        var projtag = 0;
-        var logText;
-      
-        pool.getConnection().then(conn => {
-          conn.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto])
-            .then(result => {
-              projtag = result[0].projtag;
-            })
-            .then(result => {
-              return conn.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag]);
-            })
-            .then(result => {
-              res.send('Recusado com sucesso!');
-            })
-            .catch(error => {
-              console.error('Erro:', error.message);
-              res.status(500).send(error.message);
-            })
-            .finally(() => {
-              conn.release();
-            });
-        });
-      });   
     
-      app.post('/add-membro', function(req, res) {
-        const mbr1 = req.body.mbr1;
-      
-        pool.getConnection().then(conn => {
-          conn.query(
-            "SELECT * FROM notificacoes WHERE projtag = ? AND usertag = ?",
-            [projtag, mbr1]
-          ).then(result => {
-            if (result.length > 0) {
-              res.status(500).send('Erro: essa combinação de informações já existe na tabela!');
-            } else {
-              conn.query('SELECT COUNT(*) AS projsmembro FROM membros WHERE usertag = ?', [mbr1])
-                .then(result => {
-                  projsmembrocheck = parseInt(result[0].projsmembro);
-                  return conn.query('SELECT COUNT(*) AS projscriados FROM projetos WHERE criador = ?', [mbr1]);
-                })
-                .then(result => {
-                  
-                    return conn.query("INSERT INTO notificacoes (projtag, usertag) VALUES (?, ?)", [projtag, mbr1])
-                      .then(result => {
-                        conn.query("SELECT log FROM projetos WHERE projtag = ?", [projtag])
-                          .then(result => {
-                            res.send('Solicitação enviada com sucesso!');
-                          });
-                      });
-                })
-                .finally(() => {
-                  conn.release();
-                });
+        pool.query('DELETE FROM membros WHERE usertag = ? AND projtag = ?', [mbr1, projtag]);
+    
+        let log = pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
+        log = log[0].log || '';
+        log += `\nUsuário #" + usertag + " removeu o membro ${mbr1} do projeto.`;
+    
+        pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag]);
+    
+        res.send('Membro removido com sucesso!');
+      })
+      } catch (err) {
+        console.log(err);
+        res.status(500).send('Erro ao executar a operação.');
+      }
+    });      
+
+    app.post('/get-membros', async function(req, res) {
+      const projtag = req.query.projtag;
+      try {
+        pool.query('SELECT usertag FROM membros WHERE projtag = ?', [projtag], async (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
+          
+          const usertags = result.map(row => row.usertag);
+    
+          const nicks = await Promise.all(usertags.map(async usertag => {
+            try {
+              const [nickResult] = await pool.query('SELECT nick FROM contas WHERE nicktag = ?', [usertag]);
+    
+              if (nickResult.length > 0) {
+                return nickResult[0].nick + '#' + usertag;
+              } else {
+                return '';
+              }
+            } catch (error) {
+              console.error(error);
+              return '';
+            }
+          }));
+    
+          const data = nicks.filter(nick => nick !== '');
+          res.json(data);
+        });
+      } catch (error) {
+        console.error(error);
+        res.json([]);
+      }
+    });    
+
+    app.post('/sair-projeto', async function(req, res) {
+      const projtag = req.query.projtag;
+      const usertag = req.query.usertag;
+      try {
+        pool.query('DELETE FROM membros WHERE projtag = ? AND usertag = ?', [projtag, usertag]);
+        pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
+          if (error) {
+            console.error('Erro ao consultar o banco de dados.', error);
+            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+          }
+        const logText = result[0].log || '';
+        const newLogText = `${logText}\nUsuário #${usertag} saiu do projeto`;
+
+        pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [newLogText, projtag]);
+    
+        res.sendStatus(200);
+        })
+      } catch (error) {
+        console.error(error);
+        res.sendStatus(500);
+      }
+    });    
+
+
+    app.post('/add-anexo', async function(req, res) {
+      const projtag = req.query.projtag;
+      const link = req.body.link;
+      const texto = req.body.texto;
+    
+      const novaLinha = `<a href="${link}">${texto}</a>`;
+    
+      try {
+        const logResult = await pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
+        let log = logResult[0].log;
+    
+        if (log === undefined || log === null || log === '') {
+          log = `Usuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`;
+        } else {
+          log += `\nUsuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`;
+        }
+    
+        await pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag]);
+    
+        const anexosResult = await pool.query('SELECT anexos FROM tarefas WHERE nome_tarefa = ?', [nometarefa]);
+        let textHtml = anexosResult[0].anexos;
+    
+        if (textHtml === undefined || textHtml === null || textHtml === '') {
+          textHtml = novaLinha;
+        } else {
+          textHtml += `|${novaLinha}`;
+        }
+    
+        await pool.query('UPDATE tarefas SET anexos = ? WHERE nome_tarefa = ?', [textHtml, nometarefa]);
+    
+        res.send('Link adicionado com sucesso!');
+      } catch (error) {
+        console.error('Erro:', error);
+        res.status(500).send('Ocorreu um erro ao adicionar o anexo.');
+      }
+    });    
+
+
+    app.post('/get-anexos', async (req, res) => {
+      const projtag = req.query.projtag;
+      const nometarefa = req.body.nometarefa;
+    
+      try {
+        const result = await pool.query('SELECT anexos FROM tarefas WHERE projtag = ? AND nome_tarefa = ?', [projtag, nometarefa]);
+    
+        const data = [];
+        if (result.length > 0 && result[0].anexos !== null) {
+          const links = result[0].anexos.split('</a>');
+          links.forEach(link => {
+            if (link) {
+              const $ = cheerio.load(link);
+              const name = $('a').text();
+              const href = $('a').attr('href');
+              data.push({
+                link: href,
+                name: name
+              });
             }
           });
-        });
-      });      
-
-      app.post('/rmv-membro', function(req, res) {
-        const mbr1 = req.body.mbr2;
-      
-        pool.getConnection()
-          .then(conn => {
-            conn.query('SELECT nick FROM contas WHERE nicktag = ?', [mbr1])
-              .then(result => {
-                conn.query('DELETE FROM membros WHERE usertag = ? AND projtag = ?', [mbr1, projtag])
-                  .then(result => {
-                    if (result.affectedRows === 0) {
-                      res.status(500).send('Usuário não encontrado!');
-                    } else {
-                      conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag])
-                        .then(result => {
-                          let log = result[0].log;
-                          if (log) {
-                            log += '\n';
-                          }
-                          log = 'Usuário #" + usertag + " removeu o membro" + mbr1 +" do projeto.';
-                          conn.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag])
-                            .then(result => {
-                              res.send('Membro removido com sucesso!');
-                            })
-                            .catch(err => {
-                              console.log(err);
-                              res.status(500).send('Erro ao atualizar log!');
-                            });
-                        })
-                        .catch(err => {
-                          console.log(err);
-                          res.status(500).send('Erro ao buscar log!');
-                        });
-                    }
-                    conn.release();
-                  })
-                  .catch(err => {
-                    console.log(err);
-                    res.status(500).send('Erro ao remover membro!');
-                    conn.release();
-                  });
-              })
-              .catch(err => {
-                console.log(err);
-                res.status(500).send('Erro ao buscar nome do usuário!');
-                conn.release();
-              });
-          });
-      });      
-
-app.post('/get-membros', function(req, res) {
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT usertag FROM membros WHERE projtag = ?', [projtag])
-        .then(result => {
-          const usertags = result.map(row => row.usertag);
-          const promises = usertags.map(usertag => {
-            return conn.query('SELECT nick FROM contas WHERE nicktag = ?', [usertag])
-              .then(result => {
-                return result.length > 0 ? result[0].nick + '#' + usertag : '';
-              })
-              .catch(error => {
-                console.log(error);
-                return '';
-              });
-          });
-          Promise.all(promises)
-            .then(nicks => {
-              const data = nicks.filter(nick => nick !== '');
-              res.json(data);
-            })
-            .catch(error => {
-              console.log(error);
-              res.json([]);
-            })
-            .finally(() => {
-              conn.release();
-            });
-        })
-        .catch(error => {
-          console.log(error);
-          res.json([]);
-        });
+        }
+    
+        res.json(data);
+      } catch (error) {
+        res.status(500).json({ error: 'Erro ao obter anexos.' });
+      }
     });
-});
-
-app.post('/sair-projeto', function(req, res) {
-  pool.getConnection()
-    .then(conn => {
-      conn.query('DELETE FROM membros WHERE projtag = ? AND usertag = ?', [projtag, usertag])
-        .then(result => {
-          // Adiciona mensagem no log
-          conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag])
-            .then(logResult => {
-              const logText = logResult[0].log || ''; // verifica se já existe log, se não, usa uma string vazia
-              const newLogText = `${logText}\nUsuário #${usertag} saiu do projeto`; // adiciona a nova mensagem ao log
-              conn.query('UPDATE projetos SET log = ? WHERE projtag = ?', [newLogText, projtag])
-                .then(logUpdateResult => {
-                  res.sendStatus(200);
-                  conn.release();
-                })
-                .catch(logUpdateError => {
-                  console.error(logUpdateError);
-                  res.sendStatus(500);
-                  conn.release();
-                });
-            })
-            .catch(logError => {
-              console.error(logError);
-              res.sendStatus(500);
-              conn.release();
-            });
-        })
-        .catch(error => {
-          console.error(error);
-          res.sendStatus(500);
-          res.json([]);
-        });
-    });
-});
-
-
-app.post('/add-anexo', function(req, res) {
-  const link = req.body.link;
-  const texto = req.body.texto;
-
-  const novaLinha = `<a href="${link}">${texto}</a>`;
-  
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]) // seleciona o log do projeto
-        .then(result => {
-          let log = result[0].log;
-          if (log === undefined || log === null || log === '') {
-            log = `Usuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`; // se o log estiver vazio, escreve a mensagem
-          } else {
-            log += `\nUsuario #${usertag} adicionou um anexo na tarefa ${nometarefa} do projeto.`; // se o log já tiver conteúdo, adiciona a mensagem em uma nova linha
-          }
-          conn.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag]) // atualiza o log do projeto
-            .then(() => {
-              conn.query('SELECT anexos FROM tarefas WHERE nome_tarefa = ?', [nometarefa])
-                .then(result => {
-                  let textHtml = result[0].anexos;
-                  if (textHtml === undefined || textHtml === null || textHtml === '') {
-                    textHtml = novaLinha;
-                  } else {
-                    textHtml += `|${novaLinha}`;
-                  }
-                  conn.query('UPDATE tarefas SET anexos = ? WHERE nome_tarefa = ?', [textHtml, nometarefa])
-                    .then(result => {
-                      res.send('Link adicionado com sucesso!');
-                    });
-                })
-                .finally(() => {
-                  conn.release();
-                });
-            });
-        });
-    });
-});
-
-
-app.post('/get-anexos', function(req, res) {
-  pool.getConnection()
-    .then(conn => {
-      conn.query('SELECT anexos FROM tarefas WHERE projtag = ? AND nome_tarefa = ?', [projtag, nometarefa])
-        .then(result => {
-          const data = [];
-          if (result.length > 0 && result[0].anexos !== null) {
-            const links = result[0].anexos.split('</a>');
-            links.forEach(link => {
-              if (link) {
-                const $ = cheerio.load(link);
-                const name = $('a').text();
-                const href = $('a').attr('href');
-                data.push({
-                  link: href,
-                  name: name
-                });
-              }
-            });
-          }
-          res.json(data);
-          conn.release();
-        })
-    });
-});
 
 app.post('/get-arqproj', async function(req, res) {
   const usertag = req.query.usertag;
@@ -950,9 +801,9 @@ app.post('/get-infoarqproj', function(req, res) {
 });
 
 app.post('/get-arqtarefas', function(req, res) {
-  const arqproj = req.body.projtag
+  const projtag = req.query.projtag;
   try{
-      conn.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ?', [arqproj], function(error, result) {
+      pool.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ?', [projtag], function(error, result) {
         if (error) {
           console.log(error);
           res.sendStatus(500);
@@ -973,11 +824,11 @@ app.post('/get-arqtarefas', function(req, res) {
 });
 
 app.post('/get-infoarqtar', function(req, res) {
-  const projtag = req.body.projtag;
+  const projtag = req.query.projtag;
   const data2 = req.body.selectext;
   nometarefa = data2
   try{
-      conn.query('SELECT nome_tarefa, desc_tarefa, criador, IFNULL(code, "") AS code FROM tarefas WHERE nome_tarefa = ? AND tag = ?', [data2, projtag], function(error, result) {
+      pool.query('SELECT nome_tarefa, desc_tarefa, criador, IFNULL(code, "") AS code FROM tarefas WHERE nome_tarefa = ? AND projtag = ?', [data2, projtag], function(error, result) {
         if (error) {
           console.log(error);
           res.sendStatus(500);
@@ -1001,8 +852,9 @@ app.post('/get-infoarqtar', function(req, res) {
 
 
 app.post('/get-log', function(req, res) {
+  const projtag = req.query.projtag;
   try{
-      conn.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], function(error, result) {
+      pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag], function(error, result) {
 
           const data = result.map(row => {
             return {
