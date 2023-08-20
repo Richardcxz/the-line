@@ -325,7 +325,7 @@
 
 				<div style="position: fixed; top: 35%; left: -90%; text-align: center;">
 				<p style="font-size: 18px; text-decoration: none;" id="nomeanx">ANEXOS</p>
-				<select class="text-white" id="Anexos" name="Tarefas" size="6" multiple="multiple">
+				<select class="text-white" id="Anexos" name="Tarefas" size="6" multiple="multiple" style="width:max-content;">
 
 				</select>
 				<br><br>
@@ -387,7 +387,7 @@
 	const link = document.getElementById('linkanexo').value;
 	const texto = document.getElementById('nomeanexo').value;
 	const xhr = new XMLHttpRequest();
-		xhr.open('POST', '/add-anexo?projtag=' + localStorage.getItem('projtag'));
+		xhr.open('POST', '/add-anexo?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag') + '&selectext=' + localStorage.getItem('selectext'));
 		xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		xhr.onload = function() {
 		  if (xhr.status === 200) {
@@ -402,7 +402,6 @@
 
 		xhr.send(dados);
 }
-	
 </script>
 
 <script>
@@ -681,48 +680,50 @@ function finalizartarefa() {
 function escolhertarefa() {
 	const select = document.getElementById("tarefas");
     const selectedOption = select.options[select.selectedIndex];
-    const selectext = selectedOption.textContent;
+	const encodedSelectext = encodeURIComponent(selectedOption.textContent);
+	localStorage.setItem('selectext', encodedSelectext);
 
-	fetch('/escolher-tarefa?projtag=' + localStorage.getItem('projtag'), {
+	fetch('/escolher-tarefa?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag') + '&selectext=' + encodedSelectext, {
 		method: 'POST',
         headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify({ selectext })
 	    }).then(response => {
 		  return response.json();
 		}).then(data => {
+			
+			fetch('/get-anexos?projtag=' + localStorage.getItem('projtag') + '&selectext=' + encodedSelectext, {
+				method: 'POST',
+			  })
+				.then(response => {
+				  return response.json();
+				})
+				.then(data => {
+					window.alert(data)
+				  data.forEach(data => {
+			
+				  const select = document.querySelector('select[id="Anexos"]');
+			
+				  const option = document.createElement('option');
+				  option.value = data.link;
+				  option.text = data.name;
+			
+				  select.appendChild(option);
+				  select.addEventListener('change', function() {
+			
+				  const url = 'http://' + this.value;
+			
+				  window.open(url, '_blank');
+				  select.selectedIndex = -1;
+				  });
+			
+				  });
+			})
+
 		showfive();
 		document.getElementById('nometrf').innerHTML = data[0].tarefa
 		document.getElementById('desctrf').innerHTML = data[0].desctarefa
 		codigo = data[0].code
 		CodeMirror.setValue(codigo)
 		  
-		})
-
-		fetch('/get-anexos?projtag=' + localStorage.getItem('projtag'), {
-		method: 'POST',
-	  })
-		.then(response => {
-		  return response.json();
-		})
-		.then(data => {
-		  data.forEach(data => {
-
-          const select = document.querySelector('select[id="Anexos"]');
-
-          const option = document.createElement('option');
-          option.value = data.link;
-          option.text = data.name;
-
-          select.appendChild(option);
-          select.addEventListener('change', function() {
-
-		  const url = 'http://' + this.value;
-
-          window.open(url, '_blank');
-		  select.selectedIndex = -1;
-          });
-
-		  });
 		})
 }
 
