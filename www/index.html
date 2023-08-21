@@ -17,9 +17,11 @@
 
 <body id="pagdark" class="d-flex h-100 text-center; text-white" style="background-color: #0D0020;">
 
-<video id="bg-video" autoplay loop muted><source src="background.mp4" type="video/mp4"></video>
-	<style>
-	video {
+<video id="bg-video" autoplay loop muted>
+        <source src="background.mp4" type="video/mp4">
+      </video>      
+      <style>
+        video {
             position: fixed;
             top: 0;
             left: 0;
@@ -60,11 +62,11 @@
 		#elem {
 			transform: scale(2.5);
 			top: 50%;
-			margin-right: 33%;
+			margin-left: 50%;
 			margin-top: 150%;
 		}
 	 }
-	</style>
+      </style>
 	<script>
       $(document).ready(function() {
           $("body").on("contextmenu", function(e) {
