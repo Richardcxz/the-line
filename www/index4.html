@@ -25,8 +25,8 @@
 <video id="bg-video" autoplay loop muted>
         <source src="background.mp4" type="video/mp4">
       </video>      
-      <style>
-        video {
+      	<style>
+	video {
             position: fixed;
             top: 0;
             left: 0;
@@ -51,7 +51,27 @@
           object-fit: contain;
         }
       }
-      </style>
+	  @media (max-width: 1125px) {
+		#acesso {
+			position: fixed;
+			margin-top: -23%;
+			margin: -80%;
+			right: -36.6%;
+			display: inline-block;
+			justify-content: center;
+		}
+		#logo {
+			margin-top: -51%;
+			
+		}
+		#elem {
+			transform: scale(2.5);
+			top: 50%;
+			margin-right: 33%;
+			margin-top: 150%;
+		}
+	 }
+	</style>
 	<script>
       $(document).ready(function() {
           $("body").on("contextmenu", function(e) {
