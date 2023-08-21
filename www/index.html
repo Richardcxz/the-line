@@ -50,6 +50,7 @@
 		#acesso {
 			position: fixed;
 			margin-top: -23%;
+			margin: -80%;
 			right: -36.6%;
 			display: inline-block;
 			justify-content: center;
@@ -59,8 +60,10 @@
 			
 		}
 		#elem {
-			transform: scale(1.8);
-			margin-top: 100%;
+			transform: scale(2.5);
+			top: 50%;
+			margin-left: 50%;
+			margin-top: 150%;
 		}
 	 }
       </style>
@@ -76,7 +79,7 @@
 <main id="elem" class="px-3 text-center">
 		
 		<div id="quadrado">
-			<div id="acesso" style="position: fixed; top: 40%; left: -35%;display: inline-block; justify-content: center;">
+			<div id="acesso" class="center-adjust centered" style="position: fixed; top: 40%; left: -35%;display: inline-block; justify-content: center;">
 				<p style="font-size: 28px; cursor: pointer;" onclick="formlogar()" class="animate__animated animate__fadeIn">LOGIN</p>
 				<div class="animate__animated animate__fadeIn" hidden id="login">
 					<form>
@@ -105,7 +108,7 @@
 			</div>
 			<div id="display">
 			
-				<img id="logo" src="teste.png" class="animate__animated animate__fadeIn" style="position: fixed; top: 65%; left: 36.6%;
+				<img id="logo" src="teste.png" class="animate__animated animate__fadeIn centered" style="position: fixed; top: 65%; left: 36.6%;
 			    text-align: center; width: 70%; height: auto;"></img>
 
 				<p style="margin-top: 75%; left: 16.7%; bottom: 15%; position: fixed; text-decoration: none;" >Um ambiente</p><br>
