@@ -313,6 +313,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const projtag = req.query.projtag;
       const usertag = req.query.usertag;
       const tarnome = req.body.tarnome + "#" + tagtarefa;
+      const datatarefa = req.body.datatarefa;
 
       pool.query('SELECT tarefas_pend, log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
         if (error) {
@@ -430,12 +431,12 @@ app.get('/carregar-solicitacoes', async function(req, res) {
             return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
           }
 
-        let logText = '';
-        
         if (result.length > 0 && result[0].log) {
+          let logText = '';
           logText = result[0].log + '\n';
+          logText += `Usuário #${usertag} alterou detalhes da tarefa ${nometrf}`;
         }
-        logText += `Usuário #${usertag} alterou detalhes da tarefa ${nometrf}`;
+        
         
         pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [logText, projtag]);
         pool.query('UPDATE tarefas SET code = ? WHERE nome_tarefa = ?', [code, nometrf]);
