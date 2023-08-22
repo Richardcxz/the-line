@@ -51,26 +51,6 @@
           object-fit: contain;
         }
       }
-	  @media (max-width: 1125px) {
-		#acesso {
-			position: fixed;
-			margin-top: -23%;
-			margin: -80%;
-			right: -36.6%;
-			display: inline-block;
-			justify-content: center;
-		}
-		#logo {
-			margin-top: -51%;
-			
-		}
-		#elem {
-			transform: scale(2.5);
-			top: 50%;
-			margin-right: -85%;
-			margin-top: 150%;
-		}
-	 }
       </style>
 	<script>
       $(document).ready(function() {
@@ -293,11 +273,14 @@
 		  <div class="animate__animated animate__fadeIn" hidden id="divThree" style="width: 25%; display: inline-block; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
 			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
 			<form>
-			  <p style="font-size: 18px;">NOVA TAREFA</p><br>
+			  <p style="font-size: 18px;">NOVA TAREFA</p>
 			  <p>TÍTULO DA TAREFA</p>
 			  <input class="text-white"  id="tarnome" placeholder="Tarefa" type="text"><br><br>
 			  <p rows="3">DESCRIÇÃO DA TAREFA</p>
-			  <textarea class="text-white"  id="tardesc" placeholder="Descrição" type="text" style="width: 65%; resize: none;"></textarea><br><br>
+			  <textarea class="text-white"  id="tardesc" placeholder="Descrição" type="text" style="width: 65%; resize: none;"></textarea><br>
+			  <p>SELECIONE UMA DATA DE CONCLUSÃO</p>
+              <input type="date" id="dataSelecionada">
+			  <br><br>
 			  <p style="cursor: pointer; font-size: 18px;" id="salvar2" onclick="cadtarefa()" type="button">[CRIAR]</p>
 			</form>
 		  </div>
@@ -660,7 +643,7 @@ function cadtarefa(){
 		  tagtarefa = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
 		  const dados = 'tarnome=' + encodeURIComponent(document.getElementById('tarnome').value) +
               '&tardesc=' + encodeURIComponent(document.getElementById('tardesc').value) +
-			  '&tagtarefa=' + encodeURIComponent(tagtarefa);
+			  '&tagtarefa=' + encodeURIComponent(tagtarefa) + '&datatarefa=' + encodeURIComponent(document.getElementById("dataSelecionada"));
 			  
 		  xhr.send(dados);
 }
@@ -717,7 +700,6 @@ function escolhertarefa() {
 				  return response.json();
 				})
 				.then(data => {
-					window.alert(data)
 				  data.forEach(data => {
 			
 				  const select = document.querySelector('select[id="Anexos"]');
