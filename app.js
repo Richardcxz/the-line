@@ -332,7 +332,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   
       pool.query('UPDATE projetos SET tarefas_pend = ?, log = ? WHERE projtag = ?', [newTarefasPend, logText, projtag]);
   
-      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida) VALUES (?, ?, ?, ?, ?, 0, 0)", [tarnome, tardesc, tagtarefa, projtag, usertag]);
+      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida, data) VALUES (?, ?, ?, ?, ?, 0, 0, ?)", [tarnome, tardesc, tagtarefa, projtag, usertag, datatarefa]);
   
       res.send('Tarefa salva com sucesso!');
     } 
@@ -346,7 +346,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   app.post('/get-tarefas', async (req, res) => {
     const projtag = req.query.projtag;
     try {
-      pool.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 0 AND excluida = 0',[projtag], (error, result) => {
+      pool.query('SELECT nome_tarefa, desc_tarefa, criador, data FROM tarefas WHERE projtag = ? AND finalizada = 0 AND excluida = 0',[projtag], (error, result) => {
         if (error) {
           console.error('Erro ao consultar o banco de dados.', error);
           return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
@@ -355,7 +355,8 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const data = result.map(row => ({
         tarefa: row.nome_tarefa,
         desctarefa: row.desc_tarefa,
-        criador: row.criador
+        criador: row.criador,
+        data: row.data
       }));
       res.json(data);
     } 
