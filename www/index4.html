@@ -257,7 +257,7 @@
 			
 			<p style="cursor: pointer; margin-top: -25%; margin-right: 10px; font-family: 'VCROSDMono';" class="sair" onclick="menu()">x</p>
 			<p style="font-size: 18px; text-decoration: none;">TAREFAS ATUAIS</p>
-			<select style="font-size: 18px;" class="text-white" id="tarefas" name="Tarefas" size="6" multiple="multiple">
+			<select style="font-size: 18px; width:max-content;" class="text-white" id="tarefas" name="Tarefas" size="6" multiple="multiple">
 
 			</select>
 			<br><br><br>
@@ -507,6 +507,12 @@
 	}
 
 	function gerTarefas(){
+		const dataAtual = new Date();
+		const anoAtual = dataAtual.getFullYear();
+		const mesAtual = (dataAtual.getMonth() + 1).toString().padStart(2, '0');
+		const diaAtual = dataAtual.getDate().toString().padStart(2, '0');
+		const dataCompleta = `${anoAtual}-${mesAtual}-${diaAtual}`;
+		const dataCompletaObj = new Date(dataCompleta);
 
 		document.querySelector('select[name="Tarefas"]').innerHTML = '';
 
@@ -525,8 +531,16 @@
 
           // cria uma nova opção
           const option = document.createElement('option');
+
+		  const dataTarefa = tarefa.data; 
+		  
+		  const dataTarefaObj = new Date(dataTarefa);
+
+          const diferencaEmMilissegundos = dataTarefaObj - dataCompletaObj;
+          const diferencaEmDias = Math.floor(diferencaEmMilissegundos / (1000 * 60 * 60 * 24));	  	  
+
           option.value = tarefa.tarefa;
-          option.text = tarefa.tarefa;
+          option.text = tarefa.tarefa + " | " + "VENCE EM " + diferencaEmDias + "DIAS";
 
           // adiciona a nova opção ao select
           select.appendChild(option);
@@ -629,6 +643,21 @@
 	let codigo = ""
 
 function cadtarefa(){
+	const dataAtual = new Date();
+	const anoAtual = dataAtual.getFullYear();
+	const mesAtual = (dataAtual.getMonth() + 1).toString().padStart(2, '0');
+	const diaAtual = dataAtual.getDate().toString().padStart(2, '0');
+	
+	const dataCompleta = `${anoAtual}-${mesAtual}-${diaAtual}`;
+	const dataTarefa = document.getElementById("dataSelecionada").value;
+	
+	const dataCompletaObj = new Date(dataCompleta);
+	const dataTarefaObj = new Date(dataTarefa);
+	
+	if (dataCompletaObj > dataTarefaObj) {
+		window.alert("Sua tarefa está com uma data inválida!");
+	}
+	else{
 	const xhr = new XMLHttpRequest();
 		  xhr.open('POST', '/cad-tarefa?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
@@ -643,9 +672,10 @@ function cadtarefa(){
 		  tagtarefa = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
 		  const dados = 'tarnome=' + encodeURIComponent(document.getElementById('tarnome').value) +
               '&tardesc=' + encodeURIComponent(document.getElementById('tardesc').value) +
-			  '&tagtarefa=' + encodeURIComponent(tagtarefa) + '&datatarefa=' + encodeURIComponent(document.getElementById("dataSelecionada"));
+			  '&tagtarefa=' + encodeURIComponent(tagtarefa) + '&datatarefa=' + encodeURIComponent(document.getElementById("dataSelecionada").value);
 			  
 		  xhr.send(dados);
+		}
 }
 
 function finalizartarefa() {
