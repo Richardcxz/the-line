@@ -64,6 +64,11 @@
 			<nav>
 			  <ul>
 				<p id="um" style="text-decoration: underline;" onclick="menu()">PROJETOS</p>
+				<div id="prjs" style="opacity: 0.6;">
+					<p id="cprj" style="cursor: pointer; font-size: 18px;" onclick="criarprojeto()">CRIAR PROJETO</p>
+					<p id="quatro" style="cursor: pointer; font-size: 18px;" onclick="meusprojetos()">MEUS PROJETOS</p>
+					<p id="cinco" style="cursor: pointer; font-size: 18px;" onclick="arqprojetos()">PROJETOS ARQUIVADOS</p>
+				</div>
 				<p id="tres" style="text-decoration: none; cursor: pointer;" onclick="configs()">CONFIGURAÇÕES</p>
 
 			  </ul>
@@ -71,13 +76,12 @@
 		  </header>
 
 		  <script>
-			document.getElementById("tres").addEventListener("mouseover", function() {
-				document.getElementById("um").style.textDecoration = "none";
-				document.getElementById("tres").style.textDecoration = "underline";
+			document.getElementById("cprj").addEventListener("mouseover", function() {
+				document.getElementById("cprj").style.textDecoration = "underline";
 		    });
 
-			document.getElementById("tres").addEventListener("mouseout", function() {
-				document.getElementById("tres").style.textDecoration = "none";
+			document.getElementById("cprj").addEventListener("mouseout", function() {
+				document.getElementById("cprj").style.textDecoration = "none";
 				document.getElementById("um").style.textDecoration = "underline";
 			});
 
@@ -91,6 +95,14 @@
 					document.getElementById("um").style.textDecoration = "none";
 					document.getElementById("tres").style.textDecoration = "underline";
 				}				
+			});
+			document.getElementById("tres").addEventListener("mouseover", function() {
+				document.getElementById("tres").style.textDecoration = "underline";
+		    });
+
+			document.getElementById("tres").addEventListener("mouseout", function() {
+				document.getElementById("tres").style.textDecoration = "none";
+				document.getElementById("um").style.textDecoration = "underline";
 			});
 
 		  </script>
@@ -132,15 +144,8 @@
 
 				<p style="text-decoration: none; font-size: 45px;">DASHBOARD</p>
 				<p style="text-decoration: none;" id="salute"></p>
-				<p style="text-decoration: none; font-size: 18px;">escolha uma opção</p>
+				<p style="text-decoration: none; font-size: 18px;">ESCOLHA UMA OPÇÃO ACIMA</p>
 				<br><br>
-				<div style="display: inline-flex;">
-				<p style="cursor: pointer; font-size: 18px; margin-right: 15px;" onclick="criarprojeto()">[CRIAR PROJETO]</p>
-				<p style="cursor: pointer; font-size: 18px; margin-right: 10px;" onclick="meusprojetos()">[MEUS PROJETOS]</p>
-				<p style="cursor: pointer; font-size: 18px; margin-left: 10px;" onclick="arqprojetos()">[PROJETOS ARQUIVADOS]</p>
-				</div>
-
-
 				</div>
 	
 				<div hidden id="criarproj" class="animate__animated animate__fadeIn" style="width: 75%; text-align: center; margin: 0 auto;">
@@ -394,6 +399,8 @@
 
 	function configs() {
 
+		document.getElementById("prjs").hidden=true;
+
 		document.getElementById("tres").addEventListener("mouseout", function() {
 
 		document.getElementById("tres").removeEventListener("mouseout", mouseOutHandler);
@@ -421,6 +428,7 @@
 			document.getElementById("um").style.textDecoration = "none";
 		}
 	function menu() {
+		document.getElementById("prjs").hidden=false;
 		document.getElementById("tres").removeEventListener("mouseout", mouseOutHandler);
 
 		document.getElementById("tres").addEventListener("mouseout", function() {
@@ -516,6 +524,9 @@ function handleInput(event) {
 	});
 
 	  function carregarprojetos(){
+		while (document.getElementById("projetos").length > 0) {
+		  selectElement.remove(0);
+		}
 	  fetch('/carregar-projetos?usertag=' + localStorage.getItem('usertag'))
 	  .then(response => {
 		return response.json();
