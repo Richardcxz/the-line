@@ -259,42 +259,29 @@
 
 
 <script>  
+
 	function criarprojeto() {
-		document.getElementById("criarproj").hidden=false;
 		document.getElementById("meusprojetos").hidden=true;
 		document.getElementById("projetosarq").hidden=true;
 		document.getElementById("configu").hidden=true;
 		document.getElementById("display").hidden=true;
+		document.getElementById("criarproj").hidden=false;
 	}
 	function meusprojetos() {
-		carregarprojetos();
 		document.getElementById("criarproj").hidden=true;
-		document.getElementById("meusprojetos").hidden=false;
 		document.getElementById("projetosarq").hidden=true;
 		document.getElementById("configu").hidden=true;
 		document.getElementById("display").hidden=true;
+		document.getElementById("meusprojetos").hidden=false;
+		carregarprojetos();
 	}
 	function arqprojetos() {
 		document.getElementById("criarproj").hidden=true;
 		document.getElementById("meusprojetos").hidden=true;
-		document.getElementById("projetosarq").hidden=false;
 		document.getElementById("configu").hidden=true;
 		document.getElementById("display").hidden=true;
+		document.getElementById("projetosarq").hidden=false;
 		projetosarquivados();
-		
-	}
-
-	let counter;
-	function caixa() {
-		if(counter==1){
-		document.getElementById("notif").hidden=true;
-		counter = 0;
-		}
-		else{
-		carregarsolicitacoes();
-		document.getElementById("notif").hidden=false;
-		counter = 1;
-	    }
 	}
 
 	function projetosarquivados(){
@@ -308,7 +295,7 @@
 		  mode: "text/x-csrc",
 		  theme: "material-darker"
 		});
-	
+		
 		fetch('/get-arqproj?usertag=' + localStorage.getItem('usertag'), {
 			method: 'POST',
 		  })
@@ -317,7 +304,6 @@
 			})
 			.then(data => {
 			  data.forEach(nome => {
-	
 	
 			  const select = document.querySelector('select[id="Projetos"]');
 	
@@ -339,7 +325,6 @@
 					}).then(response => {
 					  return response.json();
 					}).then(data => {
-					console.log(data)
 					localStorage.setItem('projtag', data[0].tag);
 					document.getElementById('Nomeproj1').innerHTML = data[0].nome
 					document.getElementById('Descproj1').innerHTML = data[0].desc
@@ -378,7 +363,6 @@
 										  }).then(response => {
 											return response.json();
 										  }).then(data => {
-											console.log(data);
 										  document.getElementById('NomeTar').innerHTML = data[0].tarefa
 										  document.getElementById('DescTar').innerHTML = data[0].desctarefa
 										  codigo = data[0].code
@@ -395,6 +379,19 @@
 	
 			  });
 			  });});
+	}
+
+	let counter;
+	function caixa() {
+		if(counter==1){
+		document.getElementById("notif").hidden=true;
+		counter = 0;
+		}
+		else{
+		carregarsolicitacoes();
+		document.getElementById("notif").hidden=false;
+		counter = 1;
+	    }
 	}
 
 	function configs() {
