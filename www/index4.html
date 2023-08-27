@@ -538,9 +538,19 @@
 
           const diferencaEmMilissegundos = dataTarefaObj - dataCompletaObj;
           const diferencaEmDias = Math.floor(diferencaEmMilissegundos / (1000 * 60 * 60 * 24));	  	  
-
+		  if(diferencaEmDias>0){
           option.value = tarefa.tarefa;
-          option.text = tarefa.tarefa + " | " + "VENCE EM " + diferencaEmDias + "DIAS";
+          option.text = tarefa.tarefa + " | " + "VENCE EM " + diferencaEmDias + " DIA(S)";
+		  }
+		  if(diferencaEmDias==0){
+		  option.value = tarefa.tarefa;
+		  option.text = tarefa.tarefa + " | " + "VENCE HOJE!";
+		  }
+		  if(diferencaEmDias<0){
+	      diferencaEmDias = diferencaEmDias*-1;
+		  option.value = tarefa.tarefa;
+          option.text = tarefa.tarefa + " | " + "VENCEU HÁ " + diferencaEmDias + " DIA(S)";
+		  }
 
           // adiciona a nova opção ao select
           select.appendChild(option);
@@ -713,7 +723,9 @@ function finalizartarefa() {
 function escolhertarefa() {
 	const select = document.getElementById("tarefas");
     const selectedOption = select.options[select.selectedIndex];
-	const encodedSelectext = encodeURIComponent(selectedOption.textContent);
+	let splitar = selectedOption.textContent.split(" | ");
+    let splitado = splitar[0];
+	const encodedSelectext = encodeURIComponent(splitado);
 	localStorage.setItem('selectext', encodedSelectext);
 
 	fetch('/escolher-tarefa?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag') + '&selectext=' + encodedSelectext, {
@@ -808,7 +820,7 @@ function excluirtarefa() {
 function terminarprojeto() {
 	if (confirm("Tem certeza que deseja finalizar o projeto?")) {
 		  const xhr = new XMLHttpRequest();
-		  xhr.open('POST', '/finalizar-projeto?projtag=' + localStorage.getItem('projtag'));
+		  xhr.open('POST', '/finalizar-projeto?projtag=' + localStorage.getItem('projtag') + '&usertag=' + localStorage.getItem('usertag'));
 		  xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 		  xhr.onload = function() {
 			if (xhr.status === 200) {
@@ -851,8 +863,6 @@ function sairprojeto() {
 		}
 
 		if (localStorage.getItem('islogged') == 1) {
-		  document.getElementById('salute').innerHTML = "Olá, " + usuario + "#" + data.username;
-		  localStorage.setItem('usertag', data.username);
 		} else {
 		  alert("Erro, você não está logado!");
 		  setTimeout(function() {
