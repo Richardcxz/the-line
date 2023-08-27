@@ -808,6 +808,7 @@ app.post('/get-arqproj', async function(req, res) {
             nome: row.nome
           };
         });
+        console.log(data)
         res.json(data);
       });
   } catch (error) {
