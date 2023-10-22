@@ -31,11 +31,11 @@ app.listen(port, () => {
 });
 
 const pool = mysql.createPool({
-  host: 'containers-us-west-91.railway.app',
-  user: 'root',
-  password: 'GnmUmmYf7h8IINotqiR3',
-  port: 7380,
-  database: 'railway',
+  host: 'b5a0yocqy8nk6zvkxbeo-mysql.services.clever-cloud.com',
+  user: 'ukoz6hn5habn25uo',
+  password: 'iLjAuwNfnYaQwOWuPP7N',
+  port: 3306,
+  database: 'b5a0yocqy8nk6zvkxbeo',
   waitForConnections: true,
   connectionLimit: 0,
   queueLimit: 0
