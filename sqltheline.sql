@@ -1,53 +1,26 @@
--- Create Database
+-- --------------------------------------------------------
+-- Servidor:                     127.0.0.1
+-- Versão do servidor:           10.6.5-MariaDB - mariadb.org binary distribution
+-- OS do Servidor:               Win32
+-- HeidiSQL Versão:              11.3.0.6295
+-- --------------------------------------------------------
 
-CREATE TABLE contas (
-  id SERIAL PRIMARY KEY,
-  nick VARCHAR(50) NOT NULL,
-  nicktag INT NOT NULL,
-  email VARCHAR(100) NOT NULL,
-  senha VARCHAR(50) NOT NULL
-);
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8mb4 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- Table: membros
-CREATE TABLE membros (
-  id SERIAL PRIMARY KEY,
-  projtag INT NOT NULL,
-  usertag INT NOT NULL
-);
+-- Exportação de dados foi desmarcado.
 
--- Table: notificacoes
-CREATE TABLE notificacoes (
-  id SERIAL PRIMARY KEY,
-  projtag INT NOT NULL,
-  usertag INT NOT NULL
-);
+-- Exportação de dados foi desmarcado.
 
--- Table: projetos
-CREATE TABLE projetos (
-  id SERIAL PRIMARY KEY,
-  nome VARCHAR(250) NOT NULL,
-  descricao VARCHAR(500) NOT NULL,
-  criador INT NOT NULL,
-  arqcriador INT DEFAULT NULL,
-  projtag INT NOT NULL,
-  arqprojtag INT DEFAULT NULL,
-  log TEXT,
-  tarefas_conc INT DEFAULT NULL,
-  tarefas_pend INT DEFAULT NULL,
-  tarefas_exc INT DEFAULT NULL
-);
+-- Exportação de dados foi desmarcado.
 
--- Table: tarefas
-CREATE TABLE tarefas (
-  id SERIAL PRIMARY KEY,
-  finalizada INT NOT NULL,
-  excluida INT NOT NULL,
-  nome_tarefa VARCHAR(100) NOT NULL,
-  desc_tarefa VARCHAR(500) NOT NULL,
-  tag_tarefa INT NOT NULL,
-  code TEXT NOT NULL,
-  criador INT NOT NULL,
-  anexos VARCHAR(1000) NOT NULL,
-  projtag INT NOT NULL,
-  data DATE NOT NULL
-);
+-- Exportação de dados foi desmarcado.
+
+/*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
+/*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40111 SET SQL_NOTES=IFNULL(@OLD_SQL_NOTES, 1) */;

@@ -6,6 +6,7 @@ const port = process.env.PORT || 8000;
 const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 const { query } = require('express');
+const { data } = require('cheerio/lib/api/attributes');
 
 app.use(express.static('www'));
 app.use(bodyParser.json());
@@ -314,6 +315,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const usertag = req.query.usertag;
       const tarnome = req.body.tarnome + "#" + tagtarefa;
       const datatarefa = req.body.datatarefa;
+      console.log(tardesc, tagtarefa, projtag, usertag, tarnome, datatarefa)
 
       pool.query('SELECT tarefas_pend, log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
         if (error) {
