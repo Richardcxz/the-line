@@ -6,7 +6,6 @@ const port = process.env.PORT || 8000;
 const bodyParser = require('body-parser');
 const cheerio = require('cheerio');
 const { query } = require('express');
-const { data } = require('cheerio/lib/api/attributes');
 
 app.use(express.static('www'));
 app.use(bodyParser.json());
