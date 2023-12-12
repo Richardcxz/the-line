@@ -37,9 +37,10 @@ const pool = mysql.createPool({
   port: 3306,
   database: 'b5a0yocqy8nk6zvkxbeo',
   waitForConnections: true,
-  connectionLimit: 0,
+  connectionLimit: 15,
   queueLimit: 0
 });
+
 
 pool.getConnection((err, connection) => {
   if (err) {
@@ -314,7 +315,8 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const usertag = req.query.usertag;
       const tarnome = req.body.tarnome + "#" + tagtarefa;
       const datatarefa = req.body.datatarefa;
-      console.log(tardesc, tagtarefa, projtag, usertag, tarnome, datatarefa)
+
+      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida, data) VALUES (?, ?, ?, ?, ?, 0, 0, ?)", [tarnome, tardesc, tagtarefa, projtag, usertag, datatarefa]);
 
       pool.query('SELECT tarefas_pend, log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
         if (error) {
@@ -332,9 +334,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       }
   
       pool.query('UPDATE projetos SET tarefas_pend = ?, log = ? WHERE projtag = ?', [newTarefasPend, logText, projtag]);
-  
-      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida, data) VALUES (?, ?, ?, ?, ?, 0, 0, ?)", [tarnome, tardesc, tagtarefa, projtag, usertag, datatarefa]);
-  
+
       res.send('Tarefa salva com sucesso!');
     } 
       )}
