@@ -245,21 +245,21 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   const usertag = req.query.usertag;
 
   try {
-    const result = await conn.query("SELECT projtag FROM notificacoes WHERE usertag = ?", [usertag]);
+    const [rows, fields] = await pool.promise().query("SELECT projtag FROM notificacoes WHERE usertag = ?", [usertag]);
     
-    const results = await Promise.all(result.map(row => {
-      return conn.query("SELECT projetos.nome FROM projetos WHERE projtag = ?", [row.projtag]);
+    const results = await Promise.all(rows.map(row => {
+      return pool.promise().query("SELECT nome FROM projetos WHERE projtag = ?", [row.projtag]);
     }));
 
     results.forEach(result => {
-      if (result.length > 0) {
-        var linhasolicitacao = "Convite para o projeto " + result[0].nome;
+      if (result[0].length > 0) {
+        var linhasolicitacao = "Convite para o projeto " + result[0][0].nome;
         solicitacoes.push(linhasolicitacao);
       }
     });
 
+    
     res.send(solicitacoes);
-    conn.release();
   } catch (error) {
     res.status(500).send('Erro ao buscar as solicitações no banco de dados.');
   }
@@ -433,12 +433,9 @@ app.get('/carregar-solicitacoes', async function(req, res) {
             return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
           }
 
-        if (result.length > 0 && result[0].log) {
           let logText = '';
           logText = result[0].log + '\n';
           logText += `Usuário #${usertag} alterou detalhes da tarefa ${nometrf}`;
-        }
-        
         
         pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [logText, projtag]);
         pool.query('UPDATE tarefas SET code = ? WHERE nome_tarefa = ?', [code, nometrf]);
@@ -541,25 +538,45 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       });
     });
     
-      
-    app.post('/aceitar-convite', async function(req, res) {
+    app.post('/aceitar-convite', function(req, res) {
       const usertag = req.query.usertag;
       const nomeprojeto = req.body.nomeproj;
       var projtag = 0;
-    
-      try {
-        const result1 = await pool.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto]);
-        projtag = result1[0].projtag;
-    
-        await pool.query('INSERT INTO membros (projtag, usertag) VALUES (?, ?)', [projtag, usertag]);
-        await pool.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag]);
-    
-        res.send('Adicionado com sucesso!');
-      } catch (error) {
-        console.error('Erro:', error.message);
-        res.status(500).send(error.message);
-      }
-    });       
+  
+      console.log(nomeprojeto);
+      
+      pool.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto], function(error, results, fields) {
+          if (error) {
+              console.error('Erro ao selecionar o projeto:', error.message);
+              res.status(500).send(error.message);
+              return;
+          }
+  
+          if (results.length > 0) {
+              projtag = results[0].projtag;
+  
+              pool.query('INSERT INTO membros (projtag, usertag) VALUES (?, ?)', [projtag, usertag], function(error, results, fields) {
+                  if (error) {
+                      console.error('Erro ao adicionar membro:', error.message);
+                      res.status(500).send(error.message);
+                      return;
+                  }
+  
+                  pool.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag], function(error, results, fields) {
+                      if (error) {
+                          console.error('Erro ao excluir notificação:', error.message);
+                          res.status(500).send(error.message);
+                          return;
+                      }
+  
+                      res.send('Adicionado com sucesso!');
+                  });
+              });
+          } else {
+              res.status(404).send('Projeto não encontrado');
+          }
+      });
+  });            
       
     app.post('/recusar-convite', async function(req, res) {
       const usertag = req.query.usertag;
@@ -624,12 +641,6 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     
         pool.query('DELETE FROM membros WHERE usertag = ? AND projtag = ?', [mbr1, projtag]);
     
-        let log = pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
-        log = log[0].log || '';
-        log += `\nUsuário #" + usertag + " removeu o membro ${mbr1} do projeto.`;
-    
-        pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [log, projtag]);
-    
         res.send('Membro removido com sucesso!');
       })
       } catch (err) {
@@ -638,40 +649,41 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       }
     });      
 
-    app.post('/get-membros', async function(req, res) {
+    app.post('/get-membros', function(req, res) {
       const projtag = req.query.projtag;
-      try {
-        pool.query('SELECT usertag FROM membros WHERE projtag = ?', [projtag], async (error, result) => {
+  
+      pool.query('SELECT usertag FROM membros WHERE projtag = ?', [projtag], function(error, result) {
           if (error) {
-            console.error('Erro ao consultar o banco de dados.', error);
-            return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
+              console.error('Erro ao consultar o banco de dados.', error);
+              return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
           }
-          
+  
           const usertags = result.map(row => row.usertag);
-    
-          const nicks = await Promise.all(usertags.map(async usertag => {
-            try {
-              const [nickResult] = await pool.query('SELECT nick FROM contas WHERE nicktag = ?', [usertag]);
-    
-              if (nickResult.length > 0) {
-                return nickResult[0].nick + '#' + usertag;
+          const nicks = [];
+
+          function fetchNick(index) {
+              if (index < usertags.length) {
+                  const usertag = usertags[index];
+                  pool.query('SELECT nick FROM contas WHERE nicktag = ?', [usertag], function(error, nickResult) {
+                      if (error) {
+                          console.error(error);
+                          return res.status(500).send('Erro ao buscar os nicks no banco de dados.');
+                      }
+  
+                      if (nickResult.length > 0) {
+                          nicks.push(nickResult[0].nick + '#' + usertag);
+                      }
+                      fetchNick(index + 1);
+                  });
               } else {
-                return '';
+                  const data = nicks.filter(nick => nick !== '');
+                  res.json(data);
               }
-            } catch (error) {
-              console.error(error);
-              return '';
-            }
-          }));
-    
-          const data = nicks.filter(nick => nick !== '');
-          res.json(data);
-        });
-      } catch (error) {
-        console.error(error);
-        res.json([]);
-      }
-    });    
+          }
+          fetchNick(0);
+      });
+  });
+   
 
     app.post('/sair-projeto', async function(req, res) {
       const projtag = req.query.projtag;

@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Zen+Tokyo+Zoo&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="style.css">
-	<link rel="icon" type="image/x-icon" href="1x1.png">
+	<link rel="icon" type="image/x-icon" href="images/1x1.png">
 	<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/cover/">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.css">
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.62.2/codemirror.min.js"></script>
@@ -19,37 +19,6 @@
     
 </head>
 <body id="pagdark" class="d-flex h-100 text-center; text-white" style="background-color: #0D0020;">
-
-<video id="bg-video" autoplay loop muted>
-        <source src="background.mp4" type="video/mp4">
-      </video>      
-      <style>
-        video {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 130%;
-            height: 130%;
-            object-fit: cover;
-            z-index: -1;
-          }          
-          #blur-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: #e7e7e7;
-            backdrop-filter: blur(8px);
-            opacity: 0.5;
-            z-index: -1;
-          }
-      @media (max-width: 768px) {
-        video {
-          object-fit: contain;
-        }
-      }
-      </style>
 	<script>
       $(document).ready(function() {
           $("body").on("contextmenu", function(e) {
@@ -117,10 +86,10 @@
 
 				<br><br>
 
-				<img src="exit.png" style="width: 35px; height: 35px; position: fixed; top: 3%; left: 3%; 
+				<img src="images/exit.png" style="width: 35px; height: 35px; position: fixed; top: 3%; left: 3%; 
 		        margin: 18px; filter: invert(); cursor: pointer;" onclick="sairacc()">
 
-				<img src="bell.png" style="filter: invert(); width: 35px; height: 35px; position: fixed; top: 4.6%; left: 9%; 
+				<img src="images/bell.png" style="filter: invert(); width: 35px; height: 35px; position: fixed; top: 4.6%; left: 9%; 
 		        margin:8px; filter:invert(); cursor: pointer;" onclick="caixa()">
 
 				<div style="position: fixed; top: 11%; left: 9%;">
@@ -134,9 +103,9 @@
 					</select><br>
 
 						<div style="display: inline-flex;">
-						<img src="check.png" style="filter: invert(); margin-left: -20%; width: 25px; height: 25px;
+						<img src="images/check.png" style="filter: invert(); margin-left: -20%; width: 25px; height: 25px;
 						margin:8px; filter:invert(); cursor: pointer;" onclick="aceitar()">
-						<img src="wrong.png" style="filter: invert(); margin-right: 20%; width: 25px; height: 25px;
+						<img src="images/wrong.png" style="filter: invert(); margin-right: 20%; width: 25px; height: 25px;
 						margin:8px; filter:invert(); cursor: pointer;" onclick="recusar()">
 					</div>
 		        </div>
@@ -644,6 +613,7 @@ function mudarinfo() {
 		const selectElement = document.getElementById('solic');
 		const selectedOptionText = selectElement.options[selectElement.selectedIndex].text;
 		const projectName = selectedOptionText.split('Convite para o projeto ')[1];
+		console.log(projectName)
 
 		fetch('/aceitar-convite?usertag=' + localStorage.getItem('usertag'), {
 		  method: 'POST',
