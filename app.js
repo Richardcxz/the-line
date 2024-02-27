@@ -17,7 +17,6 @@ var arqproj;
 var nomeproj = "";
 var descproj = "";
 //
-
 const publicDirectoryPath = path.join(__dirname, 'www');
 
 app.use(express.static(publicDirectoryPath));
