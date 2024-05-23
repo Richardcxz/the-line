@@ -123,7 +123,7 @@ app.post('/salvar-projeto', async (req, res) => {
       return res.send('Um projeto com o mesmo nome já existe!');
     } else {
       try {
-        pool.query("INSERT INTO projetos (nome, descricao, criador, projtag) VALUES (?, ?, ?, ?)", [nomeproj, descproj, usertag, tag], (error) => {
+        pool.query("INSERT INTO projetos (nome, descricao, criador, projtag, status) VALUES (?, ?, ?, ?,'a')", [nomeproj, descproj, usertag, tag], (error) => {
           if (error) {
             console.error('Erro ao salvar o projeto no banco de dados.', error);
             return res.status(500).send('Erro ao salvar o projeto no banco de dados.');
@@ -314,7 +314,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       const tarnome = req.body.tarnome + "#" + tagtarefa;
       const datatarefa = req.body.datatarefa;
 
-      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, finalizada, excluida, data) VALUES (?, ?, ?, ?, ?, 0, 0, ?)", [tarnome, tardesc, tagtarefa, projtag, usertag, datatarefa]);
+      pool.query("INSERT INTO tarefas (nome_tarefa, desc_tarefa, tag_tarefa, projtag, criador, status, data) VALUES (?, ?, ?, ?, ?,'a', ?)", [tarnome, tardesc, tagtarefa, projtag, usertag, datatarefa]);
 
       pool.query('SELECT tarefas_pend, log FROM projetos WHERE projtag = ?', [projtag], (error, result) => {
         if (error) {
@@ -345,7 +345,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   app.post('/get-tarefas', async (req, res) => {
     const projtag = req.query.projtag;
     try {
-      pool.query('SELECT nome_tarefa, desc_tarefa, criador, data FROM tarefas WHERE projtag = ? AND finalizada = 0 AND excluida = 0',[projtag], (error, result) => {
+      pool.query('SELECT nome_tarefa, desc_tarefa, criador, data FROM tarefas WHERE projtag = ? AND status = "a"',[projtag], (error, result) => {
         if (error) {
           console.error('Erro ao consultar o banco de dados.', error);
           return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
@@ -369,7 +369,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     app.post('/get-tarefasarq', async function (req, res) {
       const projtag = req.query.projtag;
       try {
-        pool.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND finalizada = 1 AND excluida = 0', [projtag], (error, result) => {
+        pool.query('SELECT nome_tarefa, desc_tarefa, criador FROM tarefas WHERE projtag = ? AND status = f', [projtag], (error, result) => {
           if (error) {
             console.error('Erro ao consultar o banco de dados.', error);
             return res.status(500).send('Erro ao buscar os projetos no banco de dados.');
@@ -482,7 +482,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
     app.post('/finalizar-projeto', function(req, res) {
           const projtag = req.query.projtag;
           const usertag = req.query.usertag;
-          pool.query('UPDATE projetos SET criador = 0000, projtag = 0000, arqcriador = ?, arqprojtag = ? WHERE projtag = ?', [usertag, projtag, projtag])
+          pool.query('UPDATE projetos SET status = "f" WHERE projtag = ?', [projtag])
           pool.query('DELETE FROM membros WHERE projtag = ?', [projtag])
           res.send('Projeto finalizado com sucesso!');
     });
@@ -494,16 +494,16 @@ app.get('/carregar-solicitacoes', async function(req, res) {
         const usertag = req.query.usertag;
     
         pool.query('UPDATE projetos SET tarefas_pend = tarefas_pend - 1, tarefas_conc = tarefas_conc + 1 WHERE projtag = ?', [projtag]);
-        pool.query('UPDATE tarefas SET finalizada = 1 WHERE nome_tarefa = ?', [nometrf]);
+        pool.query('UPDATE tarefas SET status = "f" WHERE nome_tarefa = ?', [nometrf]);
     
         const logResult = pool.query('SELECT log FROM projetos WHERE projtag = ?', [projtag]);
         const log = logResult.log;
         const message = `Usuário #${usertag} finalizou a tarefa ${nometrf}`;
     
         if (log) {
-          pool.query('UPDATE projetos SET log = CONCAT(log, "\n", ?) WHERE projtag = ?', [message, projtag]);
+          pool.query('UPDATE projetos SET log = log + "\n"+ ? WHERE projtag = ?', [message, projtag]);
         } else {
-          pool.query('UPDATE projetos SET log = ? WHERE projtag = ?', [message, projtag]);
+          pool.query('UPDATE projetos SET log = log +"\n"+ ? WHERE projtag = ?', [message, projtag]);
         }
     
         res.send('Tarefa finalizada com sucesso!');
@@ -542,7 +542,8 @@ app.get('/carregar-solicitacoes', async function(req, res) {
       var projtag = 0;
   
       console.log(nomeprojeto);
-      
+     
+      const newLogText = `Usuário #${usertag} foi adicionado ao projeto`
       pool.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto], function(error, results, fields) {
           if (error) {
               console.error('Erro ao selecionar o projeto:', error.message);
@@ -559,6 +560,14 @@ app.get('/carregar-solicitacoes', async function(req, res) {
                       res.status(500).send(error.message);
                       return;
                   }
+                  })
+                  pool.query('UPDATE projetos SET log = log + "\n"+  ?  WHERE projtag = ?', [newLogText,projtag], function(error, results, fields) {
+                    if (error) {
+                        console.error('Erro ao alterar log:', error.message);
+                        res.status(500).send(error.message);
+                        return;
+                    }
+                    })    
   
                   pool.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag], function(error, results, fields) {
                       if (error) {
@@ -569,7 +578,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   
                       res.send('Adicionado com sucesso!');
                   });
-              });
+              
           } else {
               res.status(404).send('Projeto não encontrado');
           }
@@ -807,7 +816,7 @@ app.get('/carregar-solicitacoes', async function(req, res) {
 app.post('/get-arqproj', async function(req, res) {
   const usertag = req.query.usertag;
   try {
-      pool.query('SELECT nome FROM projetos WHERE arqcriador = ?', [usertag], function(error, result) {
+      pool.query('SELECT nome FROM projetos WHERE criador = ? AND status = "f"',[usertag], function(error, result) {
         if (error) {
           console.log(error);
           res.sendStatus(500);
@@ -833,7 +842,7 @@ app.post('/get-infoarqproj', function(req, res) {
   const data2 = req.body.selectext;
   nometarefa = data2
   try{
-      pool.query('SELECT nome, descricao, arqprojtag, log FROM projetos WHERE nome = ?', [data2], function(error, result) {
+      pool.query('SELECT nome, descricao, projtag, log FROM projetos WHERE nome = ?', [data2], function(error, result) {
         if (error) {
           console.log(error);
           res.sendStatus(500);
@@ -860,7 +869,7 @@ app.post('/get-infoarqproj', function(req, res) {
 app.post('/get-arqtarefas', function(req, res) {
   const projtag = req.query.projtag;
   try{
-      pool.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ?', [projtag], function(error, result) {
+      pool.query('SELECT nome_tarefa FROM tarefas WHERE projtag = ? AND status = "a"', [projtag], function(error, result) {
         if (error) {
           console.log(error);
           res.sendStatus(500);
