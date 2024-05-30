@@ -543,7 +543,8 @@ app.get('/carregar-solicitacoes', async function(req, res) {
   
       console.log(nomeprojeto);
      
-      const newLogText = `Usuário #${usertag} foi adicionado ao projeto`
+      var newLogText =`Usuário #${usertag} foi adicionado ao projeto`
+      console.log(newLogText)
       pool.query('SELECT projtag FROM projetos WHERE nome = ?', [nomeprojeto], function(error, results, fields) {
           if (error) {
               console.error('Erro ao selecionar o projeto:', error.message);
@@ -561,14 +562,8 @@ app.get('/carregar-solicitacoes', async function(req, res) {
                       return;
                   }
                   })
-                  pool.query('UPDATE projetos SET log = log + "\n"+  ?  WHERE projtag = ?', [newLogText,projtag], function(error, results, fields) {
-                    if (error) {
-                        console.error('Erro ao alterar log:', error.message);
-                        res.status(500).send(error.message);
-                        return;
-                    }
-                    })    
-  
+                  //pool.query('UPDATE projetos SET log = log + "\n"+ ? WHERE projtag = ?', [newLogText, projtag]) 
+                    
                   pool.query('DELETE FROM notificacoes WHERE projtag = ? AND usertag = ?', [projtag, usertag], function(error, results, fields) {
                       if (error) {
                           console.error('Erro ao excluir notificação:', error.message);
