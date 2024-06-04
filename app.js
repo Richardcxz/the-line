@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto')
 const app = express();
 const mysql = require('mysql2');
 const path = require('path');
@@ -53,9 +54,11 @@ app.post('/salvar-conta', function(req, res) {
   const usucad = req.body.usuario;
   const emailcad = req.body.email;
   const sencad = req.body.senha;
+  var emcrp = crypto.createHash('md5').update(emailcad).digest('hex');
+  var sencrp = crypto.createHash('md5').update(sencad).digest('hex');
   const tag = Math.floor(Math.random() * (9999 - 1000 + 1) + 1000);
   
-  pool.query("SELECT COUNT(*) AS count FROM contas WHERE nick = ? OR email = ?", [usucad, emailcad], (err, result) => {
+  pool.query("SELECT COUNT(*) AS count FROM contas WHERE nick = ? OR email = ?", [usucad, emcrp], (err, result) => {
     if (err) {
       res.status(500).send('Erro ao verificar a existência do usuário ou e-mail no banco de dados.');
       return;
@@ -66,7 +69,7 @@ app.post('/salvar-conta', function(req, res) {
       return;
     }
 
-    pool.query("INSERT INTO contas (nick, nicktag, email, senha) VALUES (?, ?, ?, ?)", [usucad, tag, emailcad, sencad], (err, result) => {
+    pool.query("INSERT INTO contas (nick, nicktag, email, senha) VALUES (?, ?, ?, ?)", [usucad, tag, emailcad, sencrp], (err, result) => {
       if (err) {
         res.status(500).send('Erro ao salvar a conta no banco de dados.');
         return;
@@ -80,6 +83,7 @@ app.post('/salvar-conta', function(req, res) {
 app.post('/fazer-login', function (req, res) {
   const usu = req.body.usu;
   const sen = req.body.sen;
+  var sencrp=crypto.createHash('md5').update(sen).digest('hex');
 
   pool.getConnection((err, conn) => {
     if (err) {
@@ -88,7 +92,7 @@ app.post('/fazer-login', function (req, res) {
       return;
     }
 
-    conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sen], (err, result) => {
+    conn.query('SELECT * FROM contas WHERE nick = ? AND senha = ?', [usu, sencrp], (err, result) => {
 
       if (err) {
         console.error('Erro ao realizar a consulta ao banco de dados:', err);
@@ -146,6 +150,8 @@ app.post('/mudar-info', function (req, res) {
   const usuchg = req.body.usuchg;
   const emailchg = req.body.emailchg;
   const senchg = req.body.senchg;
+  var emcrp = crypto.createHash('md5').update(emailchg).digest('hex');
+  var sencrp = crypto.createHash('md5').update(senchg).digest('hex');
   let sql = "UPDATE contas SET";
 
   const params = [];
@@ -156,11 +162,12 @@ app.post('/mudar-info', function (req, res) {
   }
   if (emailchg) {
     sql += " email = ?";
-    params.push(emailchg);
+    params.push(emcrp);
   }
   if (senchg) {
     sql += " senha = ?";
-    params.push(senchg);
+    
+    params.push(sencrp);
   }
   if (!usuchg && !emailchg && !senchg) {
     res.status(400).send('Nenhum dado foi fornecido para atualização.');

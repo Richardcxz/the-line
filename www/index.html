@@ -44,6 +44,14 @@
 						<input style="width: 220px;" class="text-white" id="emailcad" placeholder="Seu e-mail" type="text"><br><br>
 						<p style="cursor: pointer; font-size: 18px;" class="text-white" id="salvar2" onclick="cadastrar()">[ENVIAR]</p>
 					</form>
+					<div id="aviso" style="display: none;">
+						A senha deve conter:
+
+						No mínimo 8 caracteres
+						Pelo menos 1 letra maiúscula
+						Pelo menos 1 caractere especial (como @, !, #, $, %, & )
+						Pelo menos 1 número"
+					</div>
 				</div>
 			</div>
 			<div id="display">
@@ -105,7 +113,61 @@
 	var pauseDuration = 1500;
 	
 	var textAnimation = document.getElementById("texto-anim");
-	
+	var senha = document.getElementById("sencad")
+	var sv1 = false
+	var sv2 = false
+	var sv3 = false
+	var sv4 = false
+	const charespecial = ["@","!","#","$","%","&","*"]
+	const numero = ["1","2","3","4","5","6","7","8","9","0"]
+	const letraM = /[A-Z]/;
+	senha.addEventListener("input",()=>{
+		var t = senha.value
+		for (var c of charespecial){
+			if(t.includes(c))
+			{
+				sv1 = true
+				break;
+			}
+			else{
+				sv1 = false
+			}
+		}
+		for(var n of numero){
+			if(t.includes(n))
+			{
+				sv2 = true
+				break;
+			}
+			else{
+				sv2 = false
+			}
+		}
+		if(letraM.test(t))
+		{
+			sv3 = true
+		}
+		else{
+
+			sv3 = false
+		}
+		if(t.length>=8)
+		{
+			sv4 = true;
+		}
+		else{
+			sv4 = false
+		}
+		if(!sv1||!sv2||!sv3||!sv4)
+		{
+			var b = document.getElementById("aviso")
+			aviso.style.display = "block"
+		}
+		else{
+			var b = document.getElementById("aviso")
+			aviso.style.display = "none"
+		}
+	})
 	function typeWriter() {
 	  var currentPhrase = phrases[currentIndex];
 	  var currentText = currentPhrase.substring(0, textAnimation.innerHTML.length + 1);
